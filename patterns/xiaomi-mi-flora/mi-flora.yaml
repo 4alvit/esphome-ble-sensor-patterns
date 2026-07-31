@@ -1,0 +1,155 @@
+# Xiaomi Mi Flora / HHCCJCY01 Plant Sensor
+# Soil moisture, fertility (conductivity), light, temperature, battery
+# Requires BLE connection for full data (advertisements limited)
+
+esphome:
+  name: xiaomi-mi-flora
+  friendly_name: "Xiaomi Mi Flora"
+
+esp32:
+  board: esp32dev
+  variant: esp32
+  framework:
+    type: esp-idf
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+
+captive_portal:
+
+mqtt:
+  broker: !secret mqtt_host
+  port: !secret mqtt_port
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+  topic_prefix: sensors/mi_flora
+
+logger:
+  level: INFO
+
+api:
+  reboot_timeout: 0s
+
+ota:
+  platform: esphome
+
+web_server:
+  port: 80
+
+# External component for Mi Flora (using xiaomi_ble or xiaomi_miot)
+external_components:
+  - source: github://syssi/esphome-xiaomi-bluetooth@main
+    refresh: 1d
+    components: [xiaomi_ble]
+
+esp32_ble_tracker:
+  id: ble_tracker
+  scan_parameters:
+    interval: 1600ms
+    window: 30ms
+    active: false
+    continuous: true
+
+ble_client:
+  - mac_address: "C4:7C:8D:XX:XX:XX"
+    id: mi_flora_ble_client
+    auto_connect: false
+    on_connect:
+      then:
+        - lambda: 'id(mi_flora).update();'
+        - delay: 5s
+        - ble_client.disconnect: mi_flora_ble_client
+
+xiaomi_ble:
+  - mac_address: "C4:7C:8D:XX:XX:XX"
+    ble_client_id: mi_flora_ble_client
+    id: mi_flora
+    update_interval: 300s  # 5 minutes
+    product_id: 0x00A4  # HHCCJCY01
+
+sensor:
+  # Temperature (from both advertisement and connection)
+  - platform: xiaomi_ble
+    xiaomi_ble_id: mi_flora
+    temperature:
+      name: "Soil Temperature"
+      id: temp_sensor
+
+  # Moisture (0-100%)
+  - platform: xiaomi_ble
+    xiaomi_ble_id: mi_flora
+    moisture:
+      name: "Soil Moisture"
+      id: moisture_sensor
+
+  # Conductivity / Fertility (µS/cm)
+  - platform: xiaomi_ble
+    xiaomi_ble_id: mi_flora
+    conductivity:
+      name: "Soil Fertility"
+      id: fertility_sensor
+
+  # Light intensity (lux)
+  - platform: xiaomi_ble
+    xiaomi_ble_id: mi_flora
+    illuminance:
+      name: "Light Intensity"
+      id: light_sensor
+
+  # Battery level
+  - platform: xiaomi_ble
+    xiaomi_ble_id: mi_flora
+    battery_level:
+      name: "Battery"
+      id: battery_sensor
+
+  # Firmware version
+  - platform: xiaomi_ble
+    xiaomi_ble_id: mi_flora
+    firmware_version:
+      name: "Firmware Version"
+
+  - platform: uptime
+    name: "Uptime"
+    update_interval: 60s
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+
+# Passive parsing from advertisements (limited data)
+esp32_ble_tracker.on_bluetooth_le_advertise:
+  - lambda: |-
+      if (x.get_service_uuids().size() > 0) {
+        for (auto &uuid : x.get_service_uuids()) {
+          if (uuid.to_uuid16() == 0xFE95) {  // Xiaomi service
+            std::string data = x.get_service_data(uuid);
+            if (data.size() >= 13) {
+              uint8_t frame = data[0];
+              if (frame == 0x1A) {  // Real-time data
+                float temp = int16_t(data[6] | (data[7] << 8)) / 10.0f;
+                uint8_t moisture = data[8];
+                uint16_t fertility = data[9] | (data[10] << 8);
+                uint16_t light = data[11] | (data[12] << 8) | (data[13] << 16) | (data[14] << 24);
+                id(temp_sensor).publish_state(temp);
+                id(moisture_sensor).publish_state(moisture);
+                id(fertility_sensor).publish_state(fertility);
+                id(light_sensor).publish_state(light);
+                ESP_LOGD("mi_flora", "Adv: T=%.1f M=%u F=%u L=%u", temp, moisture, fertility, light);
+              }
+            }
+          }
+        }
+      }
+
+binary_sensor:
+  - platform: status
+    name: "ESP32 Status"
+
+# NOTES:
+# 1. MAC address format: C4:7C:8D:XX:XX:XX (older) or A4:C1:38:XX:XX:XX (newer)
+# 2. Requires BLE connection for full data (moisture, fertility, light)
+# 3. Advertisements only provide limited real-time data
+# 4. Product IDs: 0x00A4 (Mi Flora), 0x00A5 (Mi Flora v2)
+# 5. Update interval: 5 min recommended (BLE connection drains sensor battery)
+# 6. Alternative: use 'xiaomi_miot' component for MiOT protocol devices

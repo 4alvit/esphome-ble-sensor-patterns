@@ -1,0 +1,320 @@
+# JBD BMS Multi-BMS Event-Driven Configuration
+# Manages multiple BMS using sequential connect/disconnect
+# Prevents ESP32 BLE connection limit issues (max ~8 concurrent)
+# Flash: esphome run multi-bms.yaml
+
+esphome:
+  name: jbd-bms-multi
+  friendly_name: "JBD BMS Multi"
+
+esp32:
+  board: esp32dev
+  variant: esp32
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_BT_ACL_CONNECTIONS: "9"
+      CONFIG_BT_GATTC_CONNECT_RETRY_COUNT: "3"
+      CONFIG_BT_ALLOCATION_FROM_SPIRAM_FIRST: "y"
+      CONFIG_BT_BLE_DYNAMIC_ENV_MEMORY: "y"
+      CONFIG_ESP32_REV_MIN_3: "y"
+
+esp32_ble:
+  max_connections: 8
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+  ap:
+    ssid: "jbd-bms-multi-fallback"
+    password: !secret wifi_pass
+
+captive_portal:
+
+mqtt:
+  broker: !secret mqtt_host
+  port: !secret mqtt_port
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+  topic_prefix: battery/jbd
+
+logger:
+  level: INFO
+  logs:
+    jbd_bms_ble: WARN
+
+api:
+  reboot_timeout: 0s
+
+ota:
+  platform: esphome
+
+web_server:
+  port: 80
+
+external_components:
+  - source: github://syssi/esphome-jbd-bms@main
+    refresh: 1d
+    components: [jbd_bms_ble]
+
+esp32_ble_tracker:
+  id: ble_tracker
+  scan_parameters:
+    interval: 800ms
+    window: 400ms
+    active: false
+    continuous: true
+
+ble_client:
+  # BMS 1
+  - mac_address: "AA:BB:CC:DD:EE:01"
+    id: bms1_ble_client
+    auto_connect: false
+    on_connect:
+      then:
+        - logger.log: "BMS1 connected"
+        - delay: 1s
+        - lambda: 'id(bms1).update();'
+        - delay: 4s
+        - ble_client.disconnect: bms1_ble_client
+
+  # BMS 2
+  - mac_address: "AA:BB:CC:DD:EE:02"
+    id: bms2_ble_client
+    auto_connect: false
+    on_connect:
+      then:
+        - logger.log: "BMS2 connected"
+        - delay: 1s
+        - lambda: 'id(bms2).update();'
+        - delay: 4s
+        - ble_client.disconnect: bms2_ble_client
+
+  # BMS 3 (add more as needed, up to 8)
+  - mac_address: "AA:BB:CC:DD:EE:03"
+    id: bms3_ble_client
+    auto_connect: false
+    on_connect:
+      then:
+        - logger.log: "BMS3 connected"
+        - delay: 1s
+        - lambda: 'id(bms3).update();'
+        - delay: 4s
+        - ble_client.disconnect: bms3_ble_client
+
+jbd_bms_ble:
+  - id: bms1
+    ble_client_id: bms1_ble_client
+    update_interval: never
+  - id: bms2
+    ble_client_id: bms2_ble_client
+    update_interval: never
+  - id: bms3
+    ble_client_id: bms3_ble_client
+    update_interval: never
+
+sensor:
+  # BMS 1
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: bms1
+    total_voltage:
+      name: "BMS1 Total Voltage"
+    current:
+      name: "BMS1 Current"
+    power:
+      name: "BMS1 Power"
+    state_of_charge:
+      name: "BMS1 SOC"
+    capacity_remaining:
+      name: "BMS1 Capacity"
+    charging_cycles:
+      name: "BMS1 Cycles"
+    temperature_1:
+      name: "BMS1 Temp 1"
+    cell_voltage_1:
+      name: "BMS1 Cell 1"
+    cell_voltage_2:
+      name: "BMS1 Cell 2"
+    cell_voltage_3:
+      name: "BMS1 Cell 3"
+    cell_voltage_4:
+      name: "BMS1 Cell 4"
+
+  # BMS 2
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: bms2
+    total_voltage:
+      name: "BMS2 Total Voltage"
+    current:
+      name: "BMS2 Current"
+    power:
+      name: "BMS2 Power"
+    state_of_charge:
+      name: "BMS2 SOC"
+    capacity_remaining:
+      name: "BMS2 Capacity"
+    charging_cycles:
+      name: "BMS2 Cycles"
+    temperature_1:
+      name: "BMS2 Temp 1"
+    cell_voltage_1:
+      name: "BMS2 Cell 1"
+    cell_voltage_2:
+      name: "BMS2 Cell 2"
+    cell_voltage_3:
+      name: "BMS2 Cell 3"
+    cell_voltage_4:
+      name: "BMS2 Cell 4"
+
+  # BMS 3
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: bms3
+    total_voltage:
+      name: "BMS3 Total Voltage"
+    current:
+      name: "BMS3 Current"
+    power:
+      name: "BMS3 Power"
+    state_of_charge:
+      name: "BMS3 SOC"
+    capacity_remaining:
+      name: "BMS3 Capacity"
+    charging_cycles:
+      name: "BMS3 Cycles"
+    temperature_1:
+      name: "BMS3 Temp 1"
+    cell_voltage_1:
+      name: "BMS3 Cell 1"
+    cell_voltage_2:
+      name: "BMS3 Cell 2"
+    cell_voltage_3:
+      name: "BMS3 Cell 3"
+    cell_voltage_4:
+      name: "BMS3 Cell 4"
+
+  # ESP32 status
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+  - platform: uptime
+    name: "Uptime"
+    update_interval: 60s
+
+  # Aggregated sensors (template)
+  - platform: template
+    name: "Total Voltage (All)"
+    unit_of_measurement: "V"
+    accuracy_decimals: 2
+    update_interval: 10s
+    lambda: |-
+      float total = 0; int count = 0;
+      if (id(sensor_bms1_total_voltage).has_state() && id(sensor_bms1_total_voltage).state > 0) { total += id(sensor_bms1_total_voltage).state; count++; }
+      if (id(sensor_bms2_total_voltage).has_state() && id(sensor_bms2_total_voltage).state > 0) { total += id(sensor_bms2_total_voltage).state; count++; }
+      if (id(sensor_bms3_total_voltage).has_state() && id(sensor_bms3_total_voltage).state > 0) { total += id(sensor_bms3_total_voltage).state; count++; }
+      if (count == 3) return total;
+      if (count > 0) return (total / count) * 3;
+      return {};
+
+  - platform: template
+    name: "Total Power (All)"
+    unit_of_measurement: "W"
+    accuracy_decimals: 1
+    update_interval: 10s
+    lambda: |-
+      float total = 0;
+      if (id(sensor_bms1_power).has_state()) total += id(sensor_bms1_power).state;
+      if (id(sensor_bms2_power).has_state()) total += id(sensor_bms2_power).state;
+      if (id(sensor_bms3_power).has_state()) total += id(sensor_bms3_power).state;
+      return total;
+
+  - platform: template
+    name: "Min SOC (All)"
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: |-
+      std::vector<float> socs;
+      if (id(sensor_bms1_soc).has_state()) socs.push_back(id(sensor_bms1_soc).state);
+      if (id(sensor_bms2_soc).has_state()) socs.push_back(id(sensor_bms2_soc).state);
+      if (id(sensor_bms3_soc).has_state()) socs.push_back(id(sensor_bms3_soc).state);
+      if (socs.empty()) return NAN;
+      std::sort(socs.begin(), socs.end());
+      return socs[0];
+
+binary_sensor:
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: bms1
+    charging:
+      name: "BMS1 Charging"
+    discharging:
+      name: "BMS1 Discharging"
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: bms2
+    charging:
+      name: "BMS2 Charging"
+    discharging:
+      name: "BMS2 Discharging"
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: bms3
+    charging:
+      name: "BMS3 Charging"
+    discharging:
+      name: "BMS3 Discharging"
+  - platform: status
+    name: "ESP32 Status"
+
+button:
+  - platform: restart
+    name: "Restart"
+
+globals:
+  - id: current_bms_index
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: ble_busy
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+# Sequential polling interval (adjust based on BMS count)
+interval:
+  - interval: 30s
+    then:
+      - esp32_ble_tracker.stop_scan:
+          id: ble_tracker
+      - lambda: |-
+          if (id(ble_busy)) {
+            ESP_LOGW("cycle", "BLE busy, skipping");
+            id(ble_busy) = false;
+          }
+      - if:
+          condition:
+            lambda: 'return !id(ble_busy);'
+          then:
+            - lambda: |-
+                id(ble_busy) = true;
+                id(current_bms_index) = (id(current_bms_index) + 1) % 3;
+                ESP_LOGI("cycle", ">>> Polling BMS %d <<<", id(current_bms_index) + 1);
+            - delay: 1s
+            - esp32_ble_tracker.start_scan:
+                id: ble_tracker
+            - delay: 1s
+            - if:
+                condition:
+                  lambda: 'return id(current_bms_index) == 0;'
+                then:
+                  - ble_client.connect: bms1_ble_client
+            - if:
+                condition:
+                  lambda: 'return id(current_bms_index) == 1;'
+                then:
+                  - ble_client.connect: bms2_ble_client
+            - if:
+                condition:
+                  lambda: 'return id(current_bms_index) == 2;'
+                then:
+                  - ble_client.connect: bms3_ble_client
+            - delay: 15s
+            - lambda: |-
+                id(ble_busy) = false;

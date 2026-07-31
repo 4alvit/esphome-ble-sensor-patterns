@@ -1,0 +1,25 @@
+# ESPHome
+.esphome/
+*.yaml.bak
+
+# Secrets
+secrets.yaml
+**/secrets.yaml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Build
+build/
+dist/

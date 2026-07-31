@@ -1,0 +1,28 @@
+# Shared ESP32 BLE Configuration
+# Include in your ESPHome config with: <<: !include patterns/common/esp32-ble-config.yaml
+
+esp32:
+  board: esp32dev
+  variant: esp32
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      # Increase BLE connections for multi-device
+      CONFIG_BT_ACL_CONNECTIONS: "9"
+      CONFIG_BT_GATTC_CONNECT_RETRY_COUNT: "3"
+      CONFIG_BT_ALLOCATION_FROM_SPIRAM_FIRST: "y"
+      CONFIG_BT_BLE_DYNAMIC_ENV_MEMORY: "y"
+      CONFIG_ESP32_REV_MIN_3: "y"
+    advanced:
+      minimum_chip_revision: "3.1"
+
+esp32_ble:
+  max_connections: 8
+
+esp32_ble_tracker:
+  id: ble_tracker
+  scan_parameters:
+    interval: 800ms
+    window: 400ms
+    active: false
+    continuous: true

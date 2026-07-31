@@ -1,0 +1,142 @@
+# JBD BMS Single BMS Configuration
+# Simple polling mode for 1 BMS device
+# Flash: esphome run single-bms.yaml
+
+esphome:
+  name: jbd-bms-single
+  friendly_name: "JBD BMS Single"
+
+esp32:
+  board: esp32dev
+  variant: esp32
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_BT_ACL_CONNECTIONS: "3"
+      CONFIG_BT_GATTC_CONNECT_RETRY_COUNT: "3"
+      CONFIG_BT_ALLOCATION_FROM_SPIRAM_FIRST: "y"
+      CONFIG_BT_BLE_DYNAMIC_ENV_MEMORY: "y"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+  ap:
+    ssid: "jbd-bms-fallback"
+    password: !secret wifi_pass
+
+captive_portal:
+
+mqtt:
+  broker: !secret mqtt_host
+  port: !secret mqtt_port
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+  topic_prefix: battery/jbd
+
+logger:
+  level: INFO
+  logs:
+    jbd_bms_ble: DEBUG
+
+api:
+  reboot_timeout: 0s
+
+ota:
+  platform: esphome
+
+web_server:
+  port: 80
+
+external_components:
+  - source: github://syssi/esphome-jbd-bms@main
+    refresh: 1d
+    components: [jbd_bms_ble]
+
+esp32_ble_tracker:
+  id: ble_tracker
+  scan_parameters:
+    interval: 500ms
+    window: 250ms
+    active: false
+    continuous: true
+
+ble_client:
+  - mac_address: "AA:BB:CC:DD:EE:FF"  # REPLACE with your BMS MAC
+    id: jbd_bms_ble_client
+    auto_connect: true
+
+jbd_bms_ble:
+  - id: jbd_bms
+    ble_client_id: jbd_bms_ble_client
+    update_interval: 30s
+
+sensor:
+  # Main measurements
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: jbd_bms
+    total_voltage:
+      name: "Total Voltage"
+      id: total_voltage
+    current:
+      name: "Current"
+      id: current
+    power:
+      name: "Power"
+      id: power
+    state_of_charge:
+      name: "State of Charge"
+      id: soc
+    capacity_remaining:
+      name: "Remaining Capacity"
+      id: capacity_remaining
+    charging_cycles:
+      name: "Charge Cycles"
+      id: cycles
+
+  # Cell voltages (up to 24 cells, enable as needed)
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: jbd_bms
+    cell_voltage_1:
+      name: "Cell 1 Voltage"
+    cell_voltage_2:
+      name: "Cell 2 Voltage"
+    cell_voltage_3:
+      name: "Cell 3 Voltage"
+    cell_voltage_4:
+      name: "Cell 4 Voltage"
+    # Uncomment for more cells:
+    # cell_voltage_5: { name: "Cell 5 Voltage" }
+    # cell_voltage_6: { name: "Cell 6 Voltage" }
+    # ... up to cell_voltage_24
+
+  # Temperatures
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: jbd_bms
+    temperature_1:
+      name: "Battery Temp 1"
+    temperature_2:
+      name: "Battery Temp 2"
+    temperature_mos:
+      name: "MOS Temperature"
+
+  # ESP32 status
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+  - platform: uptime
+    name: "Uptime"
+    update_interval: 60s
+
+binary_sensor:
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: jbd_bms
+    charging:
+      name: "Charging"
+    discharging:
+      name: "Discharging"
+  - platform: status
+    name: "ESP32 Status"
+
+button:
+  - platform: restart
+    name: "Restart"

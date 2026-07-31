@@ -1,0 +1,25 @@
+# BLE Client Template
+# Copy and customize for each sensor
+# Replace MAC_ADDRESS, SERVICE_UUID, and ID_PREFIX
+
+ble_client:
+  - mac_address: "MAC_ADDRESS"
+    id: ID_PREFIX_ble_client
+    auto_connect: false  # Set true for always-on, false for event-driven
+    # on_connect:      # Optional: actions on BLE connect
+    #   then:
+    #     - lambda: 'ESP_LOGI("ble", "ID_PREFIX connected");'
+    # on_disconnect:   # Optional: actions on BLE disconnect
+    #   then:
+    #     - lambda: 'ESP_LOGI("ble", "ID_PREFIX disconnected");'
+
+# Example usage:
+# ble_client:
+#   - mac_address: "A4:C1:38:12:34:56"
+#     id: jbd_bms1_ble_client
+#     auto_connect: false
+#     on_connect:
+#       then:
+#         - lambda: 'id(jbd_bms1).update();'
+#         - delay: 4s
+#         - ble_client.disconnect: jbd_bms1_ble_client

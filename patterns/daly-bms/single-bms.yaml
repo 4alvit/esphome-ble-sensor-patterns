@@ -1,0 +1,177 @@
+# DALY BMS BLE Pattern - Single BMS
+# Daly BMS uses custom BLE protocol (UUID FFE0/FFE1)
+# Compatible with: Daly Smart BMS, Daly BMS Bluetooth modules
+# Reference: https://github.com/syssi/esphome-daly-bms
+
+esphome:
+  name: daly-bms-single
+  friendly_name: "Daly BMS Monitor"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_BT_ACL_CONNECTIONS: "4"
+      CONFIG_BT_GATTC_CONNECT_RETRY_COUNT: "3"
+      CONFIG_BT_ALLOCATION_FROM_SPIRAM_FIRST: "y"
+      CONFIG_BT_BLE_DYNAMIC_ENV_MEMORY: "y"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+  power_save_mode: NONE
+
+mqtt:
+  broker: !secret mqtt_host
+  port: !secret mqtt_port
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+  topic_prefix: battery/daly
+
+logger:
+  level: INFO
+  logs:
+    daly_bms_ble: DEBUG
+
+api:
+  reboot_timeout: 0s
+
+ota:
+  platform: esphome
+  password: !secret ota_password
+
+web_server:
+  port: 80
+
+# Daly BMS BLE component from external repository
+external_components:
+  - source: github://syssi/esphome-daly-bms@main
+    refresh: 1d
+    components: [daly_bms_ble]
+
+esp32_ble_tracker:
+  scan_parameters:
+    interval: 500ms
+    window: 250ms
+    active: false
+    continuous: true
+
+ble_client:
+  - mac_address: !secret daly_bms_mac
+    id: daly_bms_ble_client
+    auto_connect: true
+    on_connect:
+      - logger.log: "Daly BMS connected"
+
+daly_bms_ble:
+  id: daly_bms
+  ble_client_id: daly_bms_ble_client
+  update_interval: 30s
+
+sensor:
+  # Cell voltages (up to 24 cells)
+  - platform: daly_bms_ble
+    daly_bms_ble_id: daly_bms
+    cell_voltage_1:
+      name: "Cell 1 Voltage"
+    cell_voltage_2:
+      name: "Cell 2 Voltage"
+    cell_voltage_3:
+      name: "Cell 3 Voltage"
+    cell_voltage_4:
+      name: "Cell 4 Voltage"
+    # Add up to cell_voltage_24 as needed
+
+  # Pack measurements
+  - platform: daly_bms_ble
+    daly_bms_ble_id: daly_bms
+    total_voltage:
+      name: "Pack Voltage"
+      id: pack_voltage
+    current:
+      name: "Pack Current"
+      id: pack_current
+    power:
+      name: "Pack Power"
+      id: pack_power
+    state_of_charge:
+      name: "State of Charge"
+      id: pack_soc
+    capacity_remaining:
+      name: "Remaining Capacity"
+      id: pack_capacity
+    cycles:
+      name: "Charge Cycles"
+    temperature_1:
+      name: "Temperature 1"
+    temperature_2:
+      name: "Temperature 2"
+    temperature_3:
+      name: "Temperature 3"
+    temperature_4:
+      name: "Temperature 4"
+    mos_temperature:
+      name: "MOS Temperature"
+
+  # Balancing status
+  - platform: daly_bms_ble
+    daly_bms_ble_id: daly_bms
+    balancing_current:
+      name: "Balancing Current"
+    balancing_status:
+      name: "Balancing Active"
+
+  # ESP32 status
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+  - platform: uptime
+    name: "Uptime"
+    update_interval: 60s
+
+binary_sensor:
+  # FET status
+  - platform: daly_bms_ble
+    daly_bms_ble_id: daly_bms
+    charging:
+      name: "Charging"
+    discharging:
+      name: "Discharging"
+
+  # Protections
+  - platform: daly_bms_ble
+    daly_bms_ble_id: daly_bms
+    overvoltage_protection:
+      name: "Overvoltage Protection"
+    undervoltage_protection:
+      name: "Undervoltage Protection"
+    overcurrent_charge_protection:
+      name: "Overcurrent Charge Protection"
+    overcurrent_discharge_protection:
+      name: "Overcurrent Discharge Protection"
+    overtemperature_protection:
+      name: "Overtemperature Protection"
+    undertemperature_protection:
+      name: "Undertemperature Protection"
+
+  - platform: status
+    name: "ESP32 Status"
+
+button:
+  - platform: restart
+    name: "Restart"
+
+# Template sensors for derived values
+template:
+  - sensor:
+      - name: "Pack Energy"
+        id: pack_energy
+        unit_of_measurement: "Wh"
+        accuracy_decimals: 1
+        update_interval: 30s
+        lambda: |
+          if (id(pack_voltage).has_state() && id(pack_capacity).has_state()) {
+            return id(pack_voltage).state * id(pack_capacity).state;
+          }
+          return NAN;

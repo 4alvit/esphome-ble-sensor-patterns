@@ -1,0 +1,29 @@
+# MQTT Template for Sensor Publishing
+# Include with: <<: !include patterns/common/mqtt-template.yaml
+# Requires: secrets with mqtt_broker, mqtt_port, mqtt_user, mqtt_pass
+
+mqtt:
+  broker: !secret mqtt_broker
+  port: !secret mqtt_port
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+  topic_prefix: !secret mqtt_topic_prefix
+  birth_message:
+    topic: !secret mqtt_topic_prefix/status
+    payload: "online"
+  will_message:
+    topic: !secret mqtt_topic_prefix/status
+    payload: "offline"
+  on_message:
+    - topic: !secret mqtt_topic_prefix/command
+      then:
+        - lambda: 'ESP_LOGI("mqtt", "Command: %s", x.c_str());'
+
+# Example sensor publishing (add to sensor definitions):
+#   on_value:
+#     then:
+#       - mqtt.publish:
+#           topic: !lambda |-
+#             return id(mqtt_topic_prefix) + "/sensor_name";
+#           payload: !lambda |-
+#             return to_string(x);

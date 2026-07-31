@@ -1,0 +1,100 @@
+# Xiaomi Mijia BT Thermometer 2 (LYWSD03MMC)
+# Encrypted BLE advertisements (AES-CCM) - requires bindkey
+# Uses xiaomi_ble component from syssi/esphome-xiaomi-ble
+
+esphome:
+  name: xiaomi-lywsd03mmc
+  friendly_name: "Xiaomi LYWSD03MMC"
+
+esp32:
+  board: esp32dev
+  variant: esp32
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_BT_ACL_CONNECTIONS: "3"
+      CONFIG_BT_GATTC_CONNECT_RETRY_COUNT: "3"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+  ap:
+    ssid: "lywsd03mmc-fallback"
+    password: !secret wifi_pass
+
+captive_portal:
+
+mqtt:
+  broker: !secret mqtt_host
+  port: !secret mqtt_port
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+  topic_prefix: sensors/lywsd03mmc
+
+logger:
+  level: INFO
+
+api:
+  reboot_timeout: 0s
+
+ota:
+  platform: esphome
+
+web_server:
+  port: 80
+
+external_components:
+  - source: github://syssi/esphome-xiaomi-ble@main
+    refresh: 1d
+    components: [xiaomi_ble]
+
+esp32_ble_tracker:
+  id: ble_tracker
+  scan_parameters:
+    interval: 1600ms
+    window: 30ms
+    active: false
+    continuous: true
+
+# Get bindkey from Mi Home app or telnet
+# Method 1: Mi Home -> Device -> Firmware -> Long press "Check Update" -> version copied
+# Method 2: telnet into Mi Home gateway, cat /data/miio/device_info.json
+xiaomi_ble:
+  - mac_address: "A4:C1:38:XX:XX:XX"  # REPLACE with your sensor MAC
+    bindkey: !secret xiaomi_lywsd03mmc_bindkey
+    id: lywsd03mmc_sensor
+
+sensor:
+  - platform: xiaomi_ble
+    xiaomi_ble_id: lywsd03mmc_sensor
+    temperature:
+      name: "Temperature"
+      id: temp
+      accuracy_decimals: 1
+    humidity:
+      name: "Humidity"
+      id: hum
+      accuracy_decimals: 1
+    battery_level:
+      name: "Battery"
+      id: battery
+      accuracy_decimals: 0
+    battery_voltage:
+      name: "Battery Voltage"
+      accuracy_decimals: 3
+
+  # ESP32 Status
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+  - platform: uptime
+    name: "Uptime"
+    update_interval: 60s
+
+binary_sensor:
+  - platform: status
+    name: "ESP32 Status"
+
+button:
+  - platform: restart
+    name: "Restart"

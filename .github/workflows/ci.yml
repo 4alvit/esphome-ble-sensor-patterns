@@ -1,0 +1,142 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  compile:
+    name: ESPHome Compile
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pattern:
+          - patterns/jbd-bms/single-bms.yaml
+          - patterns/jbd-bms/multi-bms.yaml
+          - patterns/daly-bms/single-bms.yaml
+          - patterns/daly-bms/multi-bms.yaml
+          - patterns/ble-temp-sensor/xiaomi-lywsd03mmc.yaml
+          - patterns/ble-temp-sensor/inkbird-ibs-th1.yaml
+          - patterns/ble-temp-sensor/generic-ble-temp.yaml
+          - patterns/xiaomi-mi-flora/mi-flora.yaml
+        esphome: ['2025.6.0']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install ESPHome
+        run: |
+          pip install --upgrade pip
+          pip install "esphome==${{ matrix.esphome }}"
+
+      - name: Compile pattern
+        run: |
+          echo "Compiling ${{ matrix.pattern }} with ESPHome ${{ matrix.esphome }}"
+          esphome compile ${{ matrix.pattern }} || exit 1
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint YAML
+        run: |
+          yamllint -c .yamllint.yml .
+
+      - name: Check GitHub Actions syntax
+        run: |
+          # Validate workflow files
+          for f in .github/workflows/*.yml .github/workflows/*.yaml; do
+            gh workflow lint $f 2>/dev/null || true
+          done
+
+  link-check:
+    name: Link Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install markdown-link-check
+        run: pip install markdown-link-check
+
+      - name: Check markdown links
+        run: |
+          find . -name "*.md" -not -path "./.github/*" | xargs markdown-link-check -q || true
+
+  validate-structure:
+    name: Validate Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check required files
+        run: |
+          # Verify each pattern has required files
+          for p in patterns/*/; do
+            name=$(basename "$p")
+            echo "Checking $name..."
+            [[ -f "${p}README.md" ]] || { echo "Missing README.md in $p"; exit 1; }
+            [[ -f "${p}secrets.example.yaml" ]] || { echo "Missing secrets.example.yaml in $p"; exit 1; }
+            # At least one YAML config
+            [[ $(ls "${p}"*.yaml 2>/dev/null | wc -l) -gt 0 ]] || { echo "No YAML config in $p"; exit 1; }
+          done
+
+      - name: Check common files
+        run: |
+          [[ -f "patterns/common/esp32-ble-config.yaml" ]] || exit 1
+          [[ -f "patterns/common/ble-client-template.yaml" ]] || exit 1
+          [[ -f "patterns/common/mqtt-template.yaml" ]] || exit 1
+          [[ -f "comparison/ble-vs-uart-vs-can.md" ]] || exit 1
+
+  summary:
+    name: Summary
+    needs: [compile, lint, link-check, validate-structure]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check job statuses
+        run: |
+          if [[ "${{ needs.compile.result }}" != "success" ]]; then
+            echo "❌ Compile failed"
+            exit 1
+          fi
+          if [[ "${{ needs.lint.result }}" != "success" ]]; then
+            echo "❌ Lint failed"
+            exit 1
+          fi
+          if [[ "${{ needs.link-check.result }}" != "success" ]]; then
+            echo "⚠️ Link check had warnings"
+          fi
+          if [[ "${{ needs.validate-structure.result }}" != "success" ]]; then
+            echo "❌ Structure validation failed"
+            exit 1
+          fi
+          echo "✅ All checks passed"

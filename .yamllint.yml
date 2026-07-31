@@ -1,0 +1,16 @@
+module.exports = {
+  config: {
+    lineLength: 120,
+    rules: {
+      'no-dup-keys': true,
+      'key-ordering': false,
+      'bracket-spacing': false,
+      'new-line-at-end-of-file': true,
+      'empty-lines': { max: 2 },
+      'trailing-spaces': true,
+      'indentation': { spaces: 2, indent-sequences: true },
+      'document-start': { present: false },
+      'truthy': { allowed-values: ['true', 'false', 'on', 'off', 'yes', 'no'] },
+    }
+  }
+}
