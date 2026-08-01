@@ -49,7 +49,7 @@ esp32_ble_tracker:
     - manufacturer_id: "038A"  # Inkbird
       then:
         - lambda: |-
-            std::string data = x.get_manufacturer_data();
+            auto data = x;
             if (data.size() >= 11) {
               // IBS-TH1 format (manufacturer data)
               // Byte 0-1: manufacturer ID (0x8A03 little-endian)
