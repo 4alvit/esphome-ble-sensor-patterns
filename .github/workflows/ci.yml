@@ -50,12 +50,22 @@ jobs:
               cp "$f" "$dir/secrets.yaml"
               # Replace placeholder values with dummy values
               sed -i 's/your_wifi_ssid/dummy_ssid/g' "$dir/secrets.yaml"
+              sed -i 's/your-wifi-ssid/dummy_ssid/g' "$dir/secrets.yaml"
               sed -i 's/your_wifi_password/dummy_password/g' "$dir/secrets.yaml"
+              sed -i 's/your-wifi-password/dummy_password/g' "$dir/secrets.yaml"
               sed -i 's/mqtt\.local/localhost/g' "$dir/secrets.yaml"
               sed -i 's/mqtt_username/dummy_user/g' "$dir/secrets.yaml"
+              sed -i 's/mqtt_user/dummy_user/g' "$dir/secrets.yaml"
               sed -i 's/mqtt_password/dummy_pass/g' "$dir/secrets.yaml"
+              sed -i 's/mqtt-pass/dummy_pass/g' "$dir/secrets.yaml"
+              sed -i 's/ota_password/dummy_ota_pass/g' "$dir/secrets.yaml"
+              sed -i 's/ota-pass/dummy_ota_pass/g' "$dir/secrets.yaml"
               sed -i 's/C4:7C:8D:XX:XX:XX/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
               sed -i 's/A4:C1:38:XX:XX:XX/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
+              sed -i 's/daly_bms1_mac/AA:BB:CC:DD:EE:01/g' "$dir/secrets.yaml"
+              sed -i 's/daly_bms2_mac/AA:BB:CC:DD:EE:02/g' "$dir/secrets.yaml"
+              sed -i 's/daly_bms3_mac/AA:BB:CC:DD:EE:03/g' "$dir/secrets.yaml"
+              sed -i 's/mi_flora_mac/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
               sed -i 's/AA:BB:CC:DD:EE:FF/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
             fi
           done
