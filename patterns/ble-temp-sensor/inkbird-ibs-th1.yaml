@@ -46,7 +46,7 @@ esp32_ble_tracker:
     continuous: true
 
   on_ble_manufacturer_data_advertise:
-    - manufacturer_id: 0x038A  # Inkbird
+    - manufacturer_id: "0x038A"  # Inkbird
       then:
         - lambda: |-
             std::string data = x.get_manufacturer_data();
