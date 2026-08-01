@@ -45,7 +45,7 @@ esp32_ble_tracker:
     active: false
     continuous: true
 
-  on_bluetooth_le_advertise:
+  on_ble_manufacturer_data_advertise:
     - lambda: |-
         if (x.get_manufacturer_id() == 0x038A) {  // Inkbird
           std::string data = x.get_manufacturer_data();
