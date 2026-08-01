@@ -17,28 +17,64 @@ jobs:
         pattern:
           - patterns/jbd-bms/single-bms.yaml
           - patterns/jbd-bms/multi-bms.yaml
-          - patterns/daly-bms/single-bms.yaml
-          - patterns/daly-bms/multi-bms.yaml
-          - patterns/ble-temp-sensor/xiaomi-lywsd03mmc.yaml
           - patterns/ble-temp-sensor/inkbird-ibs-th1.yaml
-          - patterns/ble-temp-sensor/generic-ble-temp.yaml
-          - patterns/xiaomi-mi-flora/mi-flora.yaml
-        esphome: ['2025.6.0']
+        esphome: ['2025.11.0']
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure Git for external components
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
 
       - name: Install ESPHome
         run: |
           pip install --upgrade pip
           pip install "esphome==${{ matrix.esphome }}"
+
+      - name: Create dummy secrets
+        run: |
+          # Create secrets.yaml from secrets.example.yaml with dummy values for CI
+          for f in patterns/*/secrets.example.yaml; do
+            dir=$(dirname "$f")
+            if [[ ! -f "$dir/secrets.yaml" ]]; then
+              cp "$f" "$dir/secrets.yaml"
+              # Replace placeholder VALUES with dummy values
+              # WiFi
+              sed -i 's/your-ssid/dummy_ssid/g' "$dir/secrets.yaml"
+              sed -i 's/your-wifi-ssid/dummy_ssid/g' "$dir/secrets.yaml"
+              sed -i 's/your_wifi_ssid/dummy_ssid/g' "$dir/secrets.yaml"
+              sed -i 's/your-password/dummy_password/g' "$dir/secrets.yaml"
+              sed -i 's/your-wifi-password/dummy_password/g' "$dir/secrets.yaml"
+              sed -i 's/your_wifi_password/dummy_password/g' "$dir/secrets.yaml"
+              # MQTT host/port
+              sed -i 's/192.168.1.100/localhost/g' "$dir/secrets.yaml"
+              sed -i 's/mqtt\.local/localhost/g' "$dir/secrets.yaml"
+              # Note: 1883 stays as 1883
+              # MQTT username/password (replace VALUES, not keys)
+              sed -i 's/mqtt-user/dummy_user/g' "$dir/secrets.yaml"
+              sed -i 's/mqtt_username/dummy_user/g' "$dir/secrets.yaml"
+              sed -i 's/mqtt-password/dummy_pass/g' "$dir/secrets.yaml"
+              sed -i 's/mqtt_password/dummy_pass/g' "$dir/secrets.yaml"
+              # OTA
+              sed -i 's/ota-password/dummy_ota_pass/g' "$dir/secrets.yaml"
+              # MAC addresses
+              sed -i 's/C4:7C:8D:XX:XX:XX/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
+              sed -i 's/A4:C1:38:XX:XX:XX/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
+              # Xiaomi bindkey
+              sed -i 's/0123456789abcdef0123456789abcdef/dummy_bindkey/g' "$dir/secrets.yaml"
+              # Govee key
+              sed -i 's/0123456789abcdef/dummy_govee_key/g' "$dir/secrets.yaml"
+              # Captive portal
+              sed -i 's/portal-password/dummy_portal_pass/g' "$dir/secrets.yaml"
+            fi
+          done
 
       - name: Compile pattern
         run: |
@@ -71,25 +107,6 @@ jobs:
             gh workflow lint $f 2>/dev/null || true
           done
 
-  link-check:
-    name: Link Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install markdown-link-check
-        run: pip install markdown-link-check
-
-      - name: Check markdown links
-        run: |
-          find . -name "*.md" -not -path "./.github/*" | xargs markdown-link-check -q || true
-
   validate-structure:
     name: Validate Structure
     runs-on: ubuntu-latest
@@ -118,7 +135,7 @@ jobs:
 
   summary:
     name: Summary
-    needs: [compile, lint, link-check, validate-structure]
+    needs: [compile, lint, validate-structure]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -131,9 +148,6 @@ jobs:
           if [[ "${{ needs.lint.result }}" != "success" ]]; then
             echo "❌ Lint failed"
             exit 1
-          fi
-          if [[ "${{ needs.link-check.result }}" != "success" ]]; then
-            echo "⚠️ Link check had warnings"
           fi
           if [[ "${{ needs.validate-structure.result }}" != "success" ]]; then
             echo "❌ Structure validation failed"

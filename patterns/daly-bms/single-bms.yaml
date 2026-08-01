@@ -30,9 +30,7 @@ mqtt:
   topic_prefix: battery/daly
 
 logger:
-  level: INFO
-  logs:
-    daly_bms_ble: DEBUG
+  level: DEBUG
 
 api:
   reboot_timeout: 0s
@@ -58,7 +56,7 @@ esp32_ble_tracker:
     continuous: true
 
 ble_client:
-  - mac_address: !secret daly_bms_mac
+  - mac_address: !secret daly_bms1_mac
     id: daly_bms_ble_client
     auto_connect: true
     on_connect:

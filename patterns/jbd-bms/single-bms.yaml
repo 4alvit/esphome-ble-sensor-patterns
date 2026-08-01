@@ -34,9 +34,7 @@ mqtt:
   topic_prefix: battery/jbd
 
 logger:
-  level: INFO
-  logs:
-    jbd_bms_ble: DEBUG
+  level: DEBUG
 
 api:
   reboot_timeout: 0s
@@ -116,7 +114,7 @@ sensor:
       name: "Battery Temp 1"
     temperature_2:
       name: "Battery Temp 2"
-    temperature_mos:
+    temperature_3:
       name: "MOS Temperature"
 
   # ESP32 status

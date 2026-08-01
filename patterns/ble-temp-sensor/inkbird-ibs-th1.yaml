@@ -45,30 +45,30 @@ esp32_ble_tracker:
     active: false
     continuous: true
 
-  on_bluetooth_le_advertise:
-    - lambda: |-
-        if (x.get_manufacturer_id() == 0x038A) {  // Inkbird
-          std::string data = x.get_manufacturer_data();
-          if (data.size() >= 11) {
-            // IBS-TH1 format (manufacturer data)
-            // Byte 0-1: manufacturer ID (0x8A03 little-endian)
-            // Byte 2: frame type (0x2D for data)
-            // Byte 3-4: temperature (int16, 0.01°C)
-            // Byte 5: humidity (uint8, 1%)
-            // Byte 6: battery (uint8, 0-100)
-            // Byte 7-10: MAC address (reversed)
-            if (data[2] == 0x2D) {
-              int16_t temp_raw = int16_t(data[3] | (data[4] << 8));
-              float temp = temp_raw / 100.0f;
-              uint8_t hum = data[5];
-              uint8_t bat = data[6];
-              id(sensor_temperature).publish_state(temp);
-              id(sensor_humidity).publish_state(hum);
-              id(sensor_battery).publish_state(bat);
-              ESP_LOGD("inkbird", "T=%.2f H=%u B=%u", temp, hum, bat);
+  on_ble_manufacturer_data_advertise:
+    - manufacturer_id: "038A"  # Inkbird
+      then:
+        - lambda: |-
+            auto data = x;
+            if (data.size() >= 11) {
+              // IBS-TH1 format (manufacturer data)
+              // Byte 0-1: manufacturer ID (0x8A03 little-endian)
+              // Byte 2: frame type (0x2D for data)
+              // Byte 3-4: temperature (int16, 0.01°C)
+              // Byte 5: humidity (uint8, 1%)
+              // Byte 6: battery (uint8, 0-100)
+              // Byte 7-10: MAC address (reversed)
+              if (data[2] == 0x2D) {
+                int16_t temp_raw = int16_t(data[3] | (data[4] << 8));
+                float temp = temp_raw / 100.0f;
+                uint8_t hum = data[5];
+                uint8_t bat = data[6];
+                id(sensor_temperature).publish_state(temp);
+                id(sensor_humidity).publish_state(hum);
+                id(sensor_battery).publish_state(bat);
+                ESP_LOGD("inkbird", "T=%.2f H=%u B=%u", temp, hum, bat);
+              }
             }
-          }
-        }
 
 sensor:
   - platform: template

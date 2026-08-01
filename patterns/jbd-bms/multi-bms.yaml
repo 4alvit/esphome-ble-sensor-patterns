@@ -119,78 +119,111 @@ sensor:
     jbd_bms_ble_id: bms1
     total_voltage:
       name: "BMS1 Total Voltage"
+      id: sensor_bms1_total_voltage
     current:
       name: "BMS1 Current"
+      id: sensor_bms1_current
     power:
       name: "BMS1 Power"
+      id: sensor_bms1_power
     state_of_charge:
       name: "BMS1 SOC"
+      id: sensor_bms1_soc
     capacity_remaining:
       name: "BMS1 Capacity"
+      id: sensor_bms1_capacity
     charging_cycles:
       name: "BMS1 Cycles"
+      id: sensor_bms1_cycles
     temperature_1:
       name: "BMS1 Temp 1"
+      id: sensor_bms1_temp1
     cell_voltage_1:
       name: "BMS1 Cell 1"
+      id: sensor_bms1_cell1
     cell_voltage_2:
       name: "BMS1 Cell 2"
+      id: sensor_bms1_cell2
     cell_voltage_3:
       name: "BMS1 Cell 3"
+      id: sensor_bms1_cell3
     cell_voltage_4:
       name: "BMS1 Cell 4"
+      id: sensor_bms1_cell4
 
   # BMS 2
   - platform: jbd_bms_ble
     jbd_bms_ble_id: bms2
     total_voltage:
       name: "BMS2 Total Voltage"
+      id: sensor_bms2_total_voltage
     current:
       name: "BMS2 Current"
+      id: sensor_bms2_current
     power:
       name: "BMS2 Power"
+      id: sensor_bms2_power
     state_of_charge:
       name: "BMS2 SOC"
+      id: sensor_bms2_soc
     capacity_remaining:
       name: "BMS2 Capacity"
+      id: sensor_bms2_capacity
     charging_cycles:
       name: "BMS2 Cycles"
+      id: sensor_bms2_cycles
     temperature_1:
       name: "BMS2 Temp 1"
+      id: sensor_bms2_temp1
     cell_voltage_1:
       name: "BMS2 Cell 1"
+      id: sensor_bms2_cell1
     cell_voltage_2:
       name: "BMS2 Cell 2"
+      id: sensor_bms2_cell2
     cell_voltage_3:
       name: "BMS2 Cell 3"
+      id: sensor_bms2_cell3
     cell_voltage_4:
       name: "BMS2 Cell 4"
+      id: sensor_bms2_cell4
 
   # BMS 3
   - platform: jbd_bms_ble
     jbd_bms_ble_id: bms3
     total_voltage:
       name: "BMS3 Total Voltage"
+      id: sensor_bms3_total_voltage
     current:
       name: "BMS3 Current"
+      id: sensor_bms3_current
     power:
       name: "BMS3 Power"
+      id: sensor_bms3_power
     state_of_charge:
       name: "BMS3 SOC"
+      id: sensor_bms3_soc
     capacity_remaining:
       name: "BMS3 Capacity"
+      id: sensor_bms3_capacity
     charging_cycles:
       name: "BMS3 Cycles"
+      id: sensor_bms3_cycles
     temperature_1:
       name: "BMS3 Temp 1"
+      id: sensor_bms3_temp1
     cell_voltage_1:
       name: "BMS3 Cell 1"
+      id: sensor_bms3_cell1
     cell_voltage_2:
       name: "BMS3 Cell 2"
+      id: sensor_bms3_cell2
     cell_voltage_3:
       name: "BMS3 Cell 3"
+      id: sensor_bms3_cell3
     cell_voltage_4:
       name: "BMS3 Cell 4"
+      id: sensor_bms3_cell4
 
   # ESP32 status
   - platform: wifi_signal
