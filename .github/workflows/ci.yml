@@ -70,10 +70,6 @@ jobs:
               # MAC addresses
               sed -i 's/C4:7C:8D:XX:XX:XX/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
               sed -i 's/A4:C1:38:XX:XX:XX/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
-              sed -i 's/daly_bms1_mac/AA:BB:CC:DD:EE:01/g' "$dir/secrets.yaml"
-              sed -i 's/daly_bms2_mac/AA:BB:CC:DD:EE:02/g' "$dir/secrets.yaml"
-              sed -i 's/daly_bms3_mac/AA:BB:CC:DD:EE:03/g' "$dir/secrets.yaml"
-              sed -i 's/mi_flora_mac/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
               # Xiaomi bindkey
               sed -i 's/0123456789abcdef0123456789abcdef/dummy_bindkey/g' "$dir/secrets.yaml"
               # Govee key
