@@ -34,9 +34,7 @@ mqtt:
   topic_prefix: battery/jbd
 
 logger:
-  level: INFO
-  logs:
-    jbd_bms_ble: DEBUG
+  level: DEBUG
 
 api:
   reboot_timeout: 0s
