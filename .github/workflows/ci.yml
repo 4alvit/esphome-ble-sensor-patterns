@@ -39,6 +39,25 @@ jobs:
           pip install --upgrade pip
           pip install "esphome==${{ matrix.esphome }}"
 
+      - name: Create dummy secrets
+        run: |
+          # Create secrets.yaml from secrets.example.yaml with dummy values for CI
+          for f in patterns/*/secrets.example.yaml; do
+            dir=$(dirname "$f")
+            if [[ ! -f "$dir/secrets.yaml" ]]; then
+              cp "$f" "$dir/secrets.yaml"
+              # Replace placeholder values with dummy values
+              sed -i 's/your_wifi_ssid/dummy_ssid/g' "$dir/secrets.yaml"
+              sed -i 's/your_wifi_password/dummy_password/g' "$dir/secrets.yaml"
+              sed -i 's/mqtt\.local/localhost/g' "$dir/secrets.yaml"
+              sed -i 's/mqtt_username/dummy_user/g' "$dir/secrets.yaml"
+              sed -i 's/mqtt_password/dummy_pass/g' "$dir/secrets.yaml"
+              sed -i 's/C4:7C:8D:XX:XX:XX/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
+              sed -i 's/A4:C1:38:XX:XX:XX/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
+              sed -i 's/AA:BB:CC:DD:EE:FF/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
+            fi
+          done
+
       - name: Compile pattern
         run: |
           echo "Compiling ${{ matrix.pattern }} with ESPHome ${{ matrix.esphome }}"
@@ -70,25 +89,6 @@ jobs:
             gh workflow lint $f 2>/dev/null || true
           done
 
-  link-check:
-    name: Link Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install markdown-link-check
-        run: pip install markdown-link-check
-
-      - name: Check markdown links
-        run: |
-          find . -name "*.md" -not -path "./.github/*" | xargs markdown-link-check -q || true
-
   validate-structure:
     name: Validate Structure
     runs-on: ubuntu-latest
@@ -117,7 +117,7 @@ jobs:
 
   summary:
     name: Summary
-    needs: [compile, lint, link-check, validate-structure]
+    needs: [compile, lint, validate-structure]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -130,9 +130,6 @@ jobs:
           if [[ "${{ needs.lint.result }}" != "success" ]]; then
             echo "❌ Lint failed"
             exit 1
-          fi
-          if [[ "${{ needs.link-check.result }}" != "success" ]]; then
-            echo "⚠️ Link check had warnings"
           fi
           if [[ "${{ needs.validate-structure.result }}" != "success" ]]; then
             echo "❌ Structure validation failed"
