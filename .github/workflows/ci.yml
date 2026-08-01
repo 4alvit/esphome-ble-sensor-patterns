@@ -17,10 +17,7 @@ jobs:
         pattern:
           - patterns/jbd-bms/single-bms.yaml
           - patterns/jbd-bms/multi-bms.yaml
-          - patterns/daly-bms/single-bms.yaml
-          - patterns/daly-bms/multi-bms.yaml
           - patterns/ble-temp-sensor/inkbird-ibs-th1.yaml
-          - patterns/ble-temp-sensor/xiaomi-lywsd03mmc.yaml
         esphome: ['2025.11.0']
 
     steps:
