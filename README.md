@@ -3,7 +3,7 @@
 > Reference library of production-ready ESPHome configurations for BLE sensors.
 > Extracted from real deployments monitoring 8+ JBD BMS units, Daly BMS, and various temperature/plant sensors.
 
-[![CI](https://github.com/4alvit/esphome-ble-sensor-patterns/workflows/ESPHome%20Compile%20Check/badge.svg)](https://github.com/4alvit/esphome-ble-sensor-patterns/actions)
+[![CI](https://github.com/4alvit/esphome-ble-sensor-patterns/workflows/CI/badge.svg)](https://github.com/4alvit/esphome-ble-sensor-patterns/actions)
 [![ESPHome](https://img.shields.io/badge/ESPHome-2025.6%2B-green)](https://esphome.io)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
@@ -103,7 +103,7 @@ esphome-ble-sensor-patterns/
 │       └── secrets.example.yaml
 ├── comparison/
 │   └── ble-vs-uart-vs-can.md         # Protocol comparison table
-└── README.md
+�└── README.md
 ```
 
 ## External Components Used
