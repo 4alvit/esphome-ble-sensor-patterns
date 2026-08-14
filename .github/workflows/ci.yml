@@ -98,7 +98,7 @@ jobs:
 
       - name: Lint YAML
         run: |
-          yamllint -c .yamllint.yml . --exclude '.esphome/**' --exclude '.git/**'
+          yamllint -c .yamllint.yml .
 
       - name: Check GitHub Actions syntax
         run: |
