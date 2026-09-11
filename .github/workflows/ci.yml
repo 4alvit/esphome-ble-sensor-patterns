@@ -6,17 +6,11 @@ on:
     paths-ignore:
       - '**.md'
       - 'docs/**'
-      - '**.json'
-      - '**.yaml'
-      - '**.yml'
   pull_request:
     branches: [main]
     paths-ignore:
       - '**.md'
       - 'docs/**'
-      - '**.json'
-      - '**.yaml'
-      - '**.yml'
   workflow_dispatch:
 
 jobs:
@@ -114,10 +108,8 @@ jobs:
 
       - name: Check GitHub Actions syntax
         run: |
-          # Validate workflow files
-          for f in .github/workflows/*.yml .github/workflows/*.yaml; do
-            gh workflow lint $f 2>/dev/null || true
-          done
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+          "$(go env GOPATH)/bin/actionlint"
 
   validate-structure:
     name: Validate Structure
@@ -129,13 +121,15 @@ jobs:
       - name: Check required files
         run: |
           # Verify each pattern has required files
+          shopt -s nullglob
           for p in patterns/*/; do
             name=$(basename "$p")
             echo "Checking $name..."
             [[ -f "${p}README.md" ]] || { echo "Missing README.md in $p"; exit 1; }
             [[ -f "${p}secrets.example.yaml" ]] || { echo "Missing secrets.example.yaml in $p"; exit 1; }
             # At least one YAML config
-            [[ $(ls "${p}"*.yaml 2>/dev/null | wc -l) -gt 0 ]] || { echo "No YAML config in $p"; exit 1; }
+            configs=("${p}"*.yaml)
+            [[ ${#configs[@]} -gt 0 ]] || { echo "No YAML config in $p"; exit 1; }
           done
 
       - name: Check common files
