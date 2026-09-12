@@ -7,6 +7,12 @@
 [![ESPHome](https://img.shields.io/badge/ESPHome-2025.6%2B-green)](https://esphome.io)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
+<!-- ci-release-process:start -->
+## CI and deployment
+
+See [CI and deployment workflow](docs/release-workflow.md) for required checks and local commands. This repository uses validation-only policy; application release channels do not apply.
+<!-- ci-release-process:end -->
+
 ## Patterns Included
 
 | Pattern | Sensors | Config | Description |

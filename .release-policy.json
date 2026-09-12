@@ -19,5 +19,6 @@
     "patterns/jbd-bms/multi-bms.yaml",
     "patterns/ble-temp-sensor/inkbird-ibs-th1.yaml"
   ],
-  "esphome_version": "2025.11.0"
+  "esphome_version": "2025.11.0",
+  "visibility": "public"
 }
