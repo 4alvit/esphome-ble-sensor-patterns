@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_call:
   push:
     branches: [main]
     paths-ignore:
@@ -30,10 +31,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
-      - name: Configure Git for external components
-        run: |
-          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
-
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
@@ -44,48 +41,10 @@ jobs:
           pip install --upgrade pip
           pip install "esphome==${{ matrix.esphome }}"
 
-      - name: Create dummy secrets
-        run: |
-          # Create secrets.yaml from secrets.example.yaml with dummy values for CI
-          for f in patterns/*/secrets.example.yaml; do
-            dir=$(dirname "$f")
-            if [[ ! -f "$dir/secrets.yaml" ]]; then
-              cp "$f" "$dir/secrets.yaml"
-              # Replace placeholder VALUES with dummy values
-              # WiFi
-              sed -i 's/your-ssid/dummy_ssid/g' "$dir/secrets.yaml"
-              sed -i 's/your-wifi-ssid/dummy_ssid/g' "$dir/secrets.yaml"
-              sed -i 's/your_wifi_ssid/dummy_ssid/g' "$dir/secrets.yaml"
-              sed -i 's/your-password/dummy_password/g' "$dir/secrets.yaml"
-              sed -i 's/your-wifi-password/dummy_password/g' "$dir/secrets.yaml"
-              sed -i 's/your_wifi_password/dummy_password/g' "$dir/secrets.yaml"
-              # MQTT host/port
-              sed -i 's/192.168.1.100/localhost/g' "$dir/secrets.yaml"
-              sed -i 's/mqtt\.local/localhost/g' "$dir/secrets.yaml"
-              # Note: 1883 stays as 1883
-              # MQTT username/password (replace VALUES, not keys)
-              sed -i 's/mqtt-user/dummy_user/g' "$dir/secrets.yaml"
-              sed -i 's/mqtt_username/dummy_user/g' "$dir/secrets.yaml"
-              sed -i 's/mqtt-password/dummy_pass/g' "$dir/secrets.yaml"
-              sed -i 's/mqtt_password/dummy_pass/g' "$dir/secrets.yaml"
-              # OTA
-              sed -i 's/ota-password/dummy_ota_pass/g' "$dir/secrets.yaml"
-              # MAC addresses
-              sed -i 's/C4:7C:8D:XX:XX:XX/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
-              sed -i 's/A4:C1:38:XX:XX:XX/AA:BB:CC:DD:EE:FF/g' "$dir/secrets.yaml"
-              # Xiaomi bindkey
-              sed -i 's/0123456789abcdef0123456789abcdef/dummy_bindkey/g' "$dir/secrets.yaml"
-              # Govee key
-              sed -i 's/0123456789abcdef/dummy_govee_key/g' "$dir/secrets.yaml"
-              # Captive portal
-              sed -i 's/portal-password/dummy_portal_pass/g' "$dir/secrets.yaml"
-            fi
-          done
-
-      - name: Compile pattern
-        run: |
-          echo "Compiling ${{ matrix.pattern }} with ESPHome ${{ matrix.esphome }}"
-          esphome compile ${{ matrix.pattern }} || exit 1
+      - name: Compile with the local adapter and isolated dummy credentials
+        env:
+          CONFIG: ${{ matrix.pattern }}
+        run: bash scripts/ci.sh compile "$CONFIG"
 
   lint:
     name: Lint
