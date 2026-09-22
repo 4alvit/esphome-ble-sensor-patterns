@@ -2,16 +2,6 @@ name: CI
 
 on:
   workflow_call:
-  push:
-    branches: [main]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-  pull_request:
-    branches: [main]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
   workflow_dispatch:
 
 jobs:
@@ -46,6 +36,7 @@ jobs:
           CONFIG: ${{ matrix.pattern }}
         run: bash scripts/ci.sh compile "$CONFIG"
 
+    timeout-minutes: 30
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -70,6 +61,7 @@ jobs:
           go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
           "$(go env GOPATH)/bin/actionlint"
 
+    timeout-minutes: 30
   validate-structure:
     name: Validate Structure
     runs-on: ubuntu-latest
@@ -98,6 +90,7 @@ jobs:
           [[ -f "patterns/common/mqtt-template.yaml" ]] || exit 1
           [[ -f "comparison/ble-vs-uart-vs-can.md" ]] || exit 1
 
+    timeout-minutes: 30
   summary:
     name: Summary
     needs: [compile, lint, validate-structure]
@@ -119,3 +112,4 @@ jobs:
             exit 1
           fi
           echo "✅ All checks passed"
+    timeout-minutes: 30
