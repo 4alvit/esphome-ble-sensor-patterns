@@ -4,6 +4,9 @@ on:
   workflow_call:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   compile:
     name: ESPHome Compile
@@ -93,6 +96,7 @@ jobs:
     timeout-minutes: 30
   summary:
     name: Summary
+    permissions: {}
     needs: [compile, lint, validate-structure]
     runs-on: ubuntu-latest
     if: always()
