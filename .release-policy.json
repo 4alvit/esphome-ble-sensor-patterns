@@ -2,11 +2,7 @@
   "repository": "4alvit/esphome-ble-sensor-patterns",
   "mode": "validation-only",
   "default_branch": "main",
-  "validation_workflows": [
-    "validate.yml",
-    "ci.yml",
-    "codeql.yml"
-  ],
+  "validation_workflows": ["validate.yml", "ci.yml", "codeql.yml", "dependency-review.yml"],
   "local_checks": [
     "bash scripts/ci.sh"
   ],
