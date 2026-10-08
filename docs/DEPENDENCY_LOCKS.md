@@ -23,11 +23,17 @@ upstream metadata. This repository does not override that metadata.
 The selected compiler is for validation; it does not automatically publish or
 flash firmware. A clean installation and all eight firmware builds must pass
 before changing this pin. Prefer the next compatible stable release after the
-same checks. Its runtime lock includes
-platform markers so local macOS validation and Linux CI resolve their own
-dependencies without adding unpinned packages. Some dependencies, including
-paho-mqtt 1.6.1, have only source distributions; they build with the preinstalled
-locked tools. CI compiles all eight declared configurations using isolated dummy
-credentials. Python locks do not pin ESPHome's separately downloaded native
-firmware toolchains. Update the ESPHome input file, lock filename, policy and CI matrix
-together. The YAML linter has a separate lock.
+same checks. The compiler input restricts resolution to Linux. The installer rejects other
+hosts, non-CPython interpreters and Python versions other than 3.12 before pip
+runs. Direct native installation on macOS and Windows is not supported by this
+lock; use a Linux environment. In particular, the upstream Intel-macOS marker
+pins cryptography 48.0.1, which has published advisories and is excluded by the
+explicit Linux-only support policy, not overridden or ignored by the scanner.
+
+Some dependencies, including paho-mqtt 1.6.1, have only source distributions;
+they build with the preinstalled locked tools. CI compiles all eight declared
+configurations using isolated dummy credentials. Python locks do not pin
+ESPHome's separately downloaded native firmware toolchains. Update the ESPHome
+input, generated lock, policy and CI matrix together. The YAML linter has a
+separate lock. Audit every package/version selected by the lock, including
+conditional marker branches; a host-filtered audit alone is incomplete.

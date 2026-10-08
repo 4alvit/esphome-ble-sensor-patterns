@@ -10,7 +10,10 @@ official ESPHome 2026.10.0b1 prerelease and its supported PlatformIO 6.2.0 range
 
 ### Upgrade
 
-The compile-only CI compiler is a prerelease. Recreate the Python 3.12 environment
+The compile-only CI compiler is a prerelease and now requires Linux with
+CPython 3.12. The installer fails before pip on unsupported hosts. The upstream
+Intel-macOS dependency branch still contains a vulnerable cryptography pin
+and is not supported. Recreate the Linux CPython 3.12 environment
 using the documented locks and repeat hardware validation before installing
 firmware. No device is flashed by CI. Synthetic CI Noise keys are nonzero because
 the new compiler rejects the previously used all-zero fixture; real examples

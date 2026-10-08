@@ -41,8 +41,7 @@ jobs:
 
       - name: Install ESPHome
         run: |
-          python -m pip install --require-hashes --only-binary=:all: -r .github/requirements-build.txt
-          python -m pip install --require-hashes --no-build-isolation -r ".github/requirements-esphome-${{ matrix.esphome }}.txt"
+          python scripts/install-esphome.py
 
       - name: Compile with the local adapter and isolated dummy credentials
         env:

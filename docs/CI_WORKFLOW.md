@@ -26,7 +26,7 @@ migration. Their exact previous contents remain in `docs/legacy-workflows/`.
 Production deployment, where provided, requires manual dispatch from the default
 branch and the `production` environment; validation never deploys resources.
 
-Install the hash-locked ESPHome prerelease in a Python 3.12 virtual environment as described in [dependency maintenance](DEPENDENCY_LOCKS.md). `bash scripts/ci.sh syntax` runs just the baseline; `bash scripts/ci.sh compile` validates and compiles the configured matrix with temporary dummy secrets, without flashing. ESPHome/PlatformIO and external component downloads require network access.
+Install the hash-locked ESPHome prerelease in a Linux CPython 3.12 virtual environment as described in [dependency maintenance](DEPENDENCY_LOCKS.md). `bash scripts/ci.sh syntax` runs just the baseline; `bash scripts/ci.sh compile` validates and compiles the configured matrix with temporary dummy secrets, without flashing. ESPHome/PlatformIO and external component downloads require network access.
 
 ## Coverage limits
 

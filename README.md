@@ -27,16 +27,17 @@ returns unavailable values until a device-specific parser is implemented.
 
 The compile-only CI toolchain is ESPHome 2026.10.0b1, an upstream prerelease.
 It supplies a compatible PlatformIO release with fixed Starlette dependencies.
+The supported compiler host is Linux with CPython 3.12; use a Linux environment
+on macOS or Windows.
 Validate compatibility on your intended hardware before using its output.
-Install the pinned toolchain in an isolated Python 3.12 environment. Copy an example
+Install the pinned toolchain in an isolated Linux CPython 3.12 environment. Copy an example
 and its secrets template into a private working directory, then configure the
 Wi-Fi/MQTT credentials, device MAC addresses and a unique native API key:
 
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-python -m pip install --require-hashes --only-binary=:all: -r .github/requirements-build.txt
-python -m pip install --require-hashes --no-build-isolation -r .github/requirements-esphome-2026.10.0b1.txt
+python scripts/install-esphome.py
 mkdir -p local-device
 cp patterns/jbd-bms/single-bms.yaml local-device/device.yaml
 cp patterns/jbd-bms/secrets.example.yaml local-device/secrets.yaml
