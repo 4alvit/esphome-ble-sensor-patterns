@@ -25,9 +25,9 @@ cryptographic library; this repository does not implement a cipher. See the
 [upstream API protocol](https://developers.esphome.io/architecture/api/protocol_details/).
 
 Network OTA and the optional HTTP management server are omitted by default.
-The pinned 2025.11 compiler does not provide encrypted native OTA. Use a trusted
-local serial connection for updates. If you separately upgrade and validate
-ESPHome 2026.9 or later, follow the [encrypted OTA guide](https://esphome.io/components/ota/esphome/)
+Use a trusted local serial connection for updates. The compile-only CI compiler
+is an upstream prerelease; its use does not establish safe physical-device
+operation. If you separately enable encrypted OTA, follow the [encrypted OTA guide](https://esphome.io/components/ota/esphome/)
 and its migration steps. Do not expose an unauthenticated OTA or web endpoint.
 No command in this repository's CI flashes a device.
 

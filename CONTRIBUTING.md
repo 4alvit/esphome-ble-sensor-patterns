@@ -15,7 +15,7 @@ Clone the repository, create a branch from `main`, and use the Python version an
 ```sh
 python3 -m venv .venv
 . .venv/bin/activate
-python3 -m pip install PyYAML==6.0.3
+python3 -m pip install --require-hashes --only-binary=:all: -r .github/requirements-workflow-contracts.txt
 bash scripts/ci.sh syntax
 bash scripts/ci.sh compile
 ```

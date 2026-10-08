@@ -9,7 +9,7 @@ Install actionlint 1.7.12 (and Node.js when JavaScript sources are present).
 Run the same local checks:
 
 ```sh
-python3 -m pip install PyYAML==6.0.3
+python3 -m pip install --require-hashes --only-binary=:all: -r .github/requirements-workflow-contracts.txt
 bash scripts/ci.sh
 ```
 
@@ -26,9 +26,9 @@ migration. Their exact previous contents remain in `docs/legacy-workflows/`.
 Production deployment, where provided, requires manual dispatch from the default
 branch and the `production` environment; validation never deploys resources.
 
-Install `esphome==2025.11.0` in a Python 3.12 virtual environment. `bash scripts/ci.sh syntax` runs just the baseline; `bash scripts/ci.sh compile` validates and compiles the configured matrix with temporary dummy secrets, without flashing. ESPHome/PlatformIO and external component downloads require network access.
+Install the hash-locked ESPHome prerelease in a Python 3.12 virtual environment as described in [dependency maintenance](DEPENDENCY_LOCKS.md). `bash scripts/ci.sh syntax` runs just the baseline; `bash scripts/ci.sh compile` validates and compiles the configured matrix with temporary dummy secrets, without flashing. ESPHome/PlatformIO and external component downloads require network access.
 
 ## Coverage limits
 
 - Validation-only policy: no synthetic beta/RC artifacts or tag-triggered stable releases.
-- ESPHome compile matrix remains required; no flashing or hardware BLE/MQTT checks. Some external components follow upstream main.
+- ESPHome compile matrix remains required; no flashing or hardware BLE/MQTT checks. JBD and Daly external components are pinned to source commits.

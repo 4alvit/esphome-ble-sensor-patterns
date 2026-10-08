@@ -23,7 +23,7 @@ jobs:
           - patterns/jbd-bms/multi-bms.yaml
           - patterns/jbd-bms/single-bms.yaml
           - patterns/xiaomi-mi-flora/mi-flora.yaml
-        esphome: ['2025.11.0']
+        esphome: ['2026.10.0b1']
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -41,8 +41,8 @@ jobs:
 
       - name: Install ESPHome
         run: |
-          pip install --upgrade pip
-          pip install "esphome==${{ matrix.esphome }}"
+          python -m pip install --require-hashes --only-binary=:all: -r .github/requirements-build.txt
+          python -m pip install --require-hashes --no-build-isolation -r ".github/requirements-esphome-${{ matrix.esphome }}.txt"
 
       - name: Compile with the local adapter and isolated dummy credentials
         env:
@@ -68,7 +68,8 @@ jobs:
           python-version: '3.12'
 
       - name: Install yamllint
-        run: pip install yamllint
+        run: |
+          python -m pip install --require-hashes --only-binary=:all: -r .github/requirements-lint.txt
 
       - name: Lint YAML
         run: |

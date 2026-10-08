@@ -53,7 +53,7 @@ def dummy_secret(key, value):
     """Replace known secret kinds with inert values required by firmware validation."""
     if key == "api_encryption_key":
         # Public synthetic key used only in compile-only CI, never on a device.
-        return "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+        return "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="
     replacements = (
         ("ssid", "ci-validation"),
         ("bindkey", "0123456789abcdef0123456789abcdef"),
