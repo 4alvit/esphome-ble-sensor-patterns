@@ -37,16 +37,16 @@ logger:
   level: DEBUG
 
 api:
+  encryption:
+    key: !secret api_encryption_key
   reboot_timeout: 0s
 
-ota:
-  platform: esphome
+# Network OTA is disabled by default; see SECURITY.md before enabling updates.
 
-web_server:
-  port: 80
+# The optional HTTP management server is disabled by default.
 
 external_components:
-  - source: github://syssi/esphome-jbd-bms@main
+  - source: github://syssi/esphome-jbd-bms@fdd33434accf7b1abd10bb6cc8030fbe577bfcb3
     refresh: 1d
     components: [jbd_bms_ble]
 

@@ -30,7 +30,7 @@ Daly Smart BMS with BLE interface. Uses `syssi/esphome-daly-bms` external compon
 ## External Component
 ```yaml
 external_components:
-  - source: github://syssi/esphome-daly-bms@main
+  - source: github://syssi/esphome-daly-bms@f97d33c987fc38cf9bb5576141dade997a0dadc9
     refresh: 1d
     components: [daly_bms_ble]
 ```

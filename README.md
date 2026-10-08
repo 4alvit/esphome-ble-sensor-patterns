@@ -1,157 +1,77 @@
 # ESPHome BLE Sensor Patterns
 
-> Reference library of production-ready ESPHome configurations for BLE sensors.
-> Extracted from real deployments monitoring 8+ JBD BMS units, Daly BMS, and various temperature/plant sensors.
+Reference configurations for ESP32 BLE telemetry using JBD/Daly battery monitors,
+Xiaomi temperature and plant sensors, and an Inkbird example. These are starting
+points for hardware validation, not battery protection or control firmware.
 
-[![CI](https://github.com/4alvit/esphome-ble-sensor-patterns/workflows/CI/badge.svg)](https://github.com/4alvit/esphome-ble-sensor-patterns/actions)
-[![ESPHome](https://img.shields.io/badge/ESPHome-2025.6%2B-green)](https://esphome.io)
+[![CI](https://github.com/4alvit/esphome-ble-sensor-patterns/actions/workflows/quality-gate.yml/badge.svg)](https://github.com/4alvit/esphome-ble-sensor-patterns/actions/workflows/quality-gate.yml)
+[![ESPHome](https://img.shields.io/badge/ESPHome-2025.11.0-blue)](https://esphome.io)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
-<!-- ci-release-process:start -->
-## CI and deployment
+## Examples
 
-See [CI and deployment workflow](docs/release-workflow.md) for required checks and local commands. This repository uses validation-only policy; application release channels do not apply.
-<!-- ci-release-process:end -->
+- [JBD BMS](patterns/jbd-bms/): one or three battery monitors using the
+  commit-pinned `syssi/esphome-jbd-bms` component.
+- [Daly BMS](patterns/daly-bms/): one or three monitors using the commit-pinned
+  `syssi/esphome-daly-bms` component.
+- [Temperature and humidity](patterns/ble-temp-sensor/): built-in Xiaomi
+  LYWSD03MMC support, an Inkbird advertisement example and a generic skeleton.
+- [Mi Flora](patterns/xiaomi-mi-flora/): built-in ESPHome `xiaomi_hhccjcy01` support.
+- [Common fragments](patterns/common/) and [BLE/UART/CAN comparison](comparison/ble-vs-uart-vs-can.md).
 
-## Patterns Included
+JBD/Daly extensions are third-party components. Xiaomi components are supplied by
+ESPHome. Some examples contain C++ lambdas; the generic skeleton deliberately
+returns unavailable values until a device-specific parser is implemented.
 
-| Pattern | Sensors | Config | Description |
-|---------|---------|--------|-------------|
-| [JBD BMS](patterns/jbd-bms/) | 8× BMS | `single-bms.yaml`, `multi-bms.yaml` | Event-driven sequential BLE polling for multiple BMS |
-| [Daly BMS](patterns/daly-bms/) | 3× BMS | `single-bms.yaml`, `multi-bms.yaml` | Daly Smart BMS via BLE (FFE0/FFE1) |
-| [BLE Temp](patterns/ble-temp-sensor/) | LYWSD03MMC, IBS-TH1 | `xiaomi-lywsd03mmc.yaml`, `inkbird-ibs-th1.yaml` | Passive scan for encrypted/unencrypted temp sensors |
-| [Mi Flora](patterns/xiaomi-mi-flora/) | HHCCJCY01 | `mi-flora.yaml` | Plant sensor with MiOT protocol |
+## Configure and build
 
-[→ Comparison: BLE vs UART vs CAN](comparison/ble-vs-uart-vs-can.md)
-
-## Quick Start
+Install the pinned toolchain in an isolated Python environment. Copy an example
+and its secrets template into a private working directory, then configure the
+Wi-Fi/MQTT credentials, device MAC addresses and a unique native API key:
 
 ```bash
-# 1. Clone
-git clone https://github.com/4alvit/esphome-ble-sensor-patterns.git
-cd esphome-ble-sensor-patterns
-
-# 2. Pick a pattern
-cp patterns/jbd-bms/single-bms.yaml my-bms.yaml
-
-# 3. Configure secrets
-cp patterns/jbd-bms/secrets.example.yaml secrets.yaml
-# Edit secrets.yaml with your WiFi, MQTT, MAC addresses
-
-# 4. Compile & flash
-esphome run my-bms.yaml
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install esphome==2025.11.0
+mkdir -p local-device
+cp patterns/jbd-bms/single-bms.yaml local-device/device.yaml
+cp patterns/jbd-bms/secrets.example.yaml local-device/secrets.yaml
+openssl rand -base64 32
+# Put the generated value in api_encryption_key in private secrets.yaml.
+# Set networking credentials and replace the BMS MAC in device.yaml.
+esphome config local-device/device.yaml
+esphome compile local-device/device.yaml
 ```
 
-## Architecture Highlights
+Compilation does not install firmware. Use a trusted local serial connection for
+installation and physical testing. Never commit a real secrets file or distribute
+firmware containing device credentials. Treat compiled images as private.
 
-### Event-Driven Multi-BMS (JBD/Daly)
-```yaml
-# Prevents ESP32 BLE connection limit (~8 max)
-ble_client:
-  - mac_address: "AA:BB:CC:DD:EE:01"
-    id: bms1_client
-    auto_connect: false
-    on_connect:
-      - lambda: 'id(bms1).update();'
-      - delay: 4s
-      - ble_client.disconnect: bms1_client
+## Interfaces and security
 
-interval:
-  - interval: 30s
-    then:
-      - ble_client.connect: bms1_client  # Sequential polling
-```
+Each YAML declares its MQTT topic prefix, telemetry entities, BLE addressing and
+polling/scan intervals. These can be changed for your installation. Configure the
+API client with the same unique `api_encryption_key`; the empty example key
+intentionally prevents an unconfigured real-device build. CI substitutes a public
+dummy key only in an isolated temporary directory and never flashes its output.
 
-### ESP32 BLE Tuning (for 8+ devices)
-```yaml
-esp32:
-  framework:
-    type: esp-idf
-    sdkconfig_options:
-      CONFIG_BT_ACL_CONNECTIONS: "9"
-      CONFIG_BT_GATTC_CONNECT_RETRY_COUNT: "3"
-      CONFIG_BT_ALLOCATION_FROM_SPIRAM_FIRST: "y"
-      CONFIG_BT_BLE_DYNAMIC_ENV_MEMORY: "y"
+Optional network OTA and HTTP management are disabled by default. The pinned
+compiler does not support encrypted native OTA; use serial updates, or separately
+validate the ESPHome upgrade described in [SECURITY.md](SECURITY.md). MQTT is
+intended for an isolated trusted LAN unless certificate-verified ESP-IDF MQTT TLS
+is configured. BLE advertisements are not a trusted authorization channel.
 
-esp32_ble:
-  max_connections: 8
-```
+## Validation and releases
 
-### Encrypted Xiaomi Sensors
-```yaml
-xiaomi_ble:
-  - mac_address: "A4:C1:38:XX:XX:XX"
-    bindkey: !secret xiaomi_bindkey  # Get from Mi Home app
-    id: lywsd03mmc
+The required CI matrix compiles all eight complete examples on ESPHome 2025.11.0:
+JBD and Daly single/multi BMS, Inkbird, Xiaomi LYWSD03MMC, Mi Flora and the generic
+skeleton. Syntax, management-default regression tests, Ruff/Bandit and CodeQL
+checks run as well. Compilation cannot prove packet interpretation, radio range,
+sensor calibration or safe battery behavior. Test every pattern on the intended
+physical sensor before relying on its values.
 
-sensor:
-  - platform: xiaomi_ble
-    xiaomi_ble_id: lywsd03mmc
-    temperature: { name: "Temp" }
-    humidity: { name: "Hum" }
-    battery_level: { name: "Battery" }
-```
-
-## Repository Structure
-
-```
-esphome-ble-sensor-patterns/
-├── .github/workflows/ci.yml          # ESPHome compile matrix
-├── patterns/
-│   ├── jbd-bms/                      # JBD BMS (syssi/esphome-jbd-bms)
-│   ├── daly-bms/                     # Daly BMS (syssi/esphome-daly-bms)
-│   ├── ble-temp-sensor/              # Temp/humidity (passive scan)
-│   ├── xiaomi-mi-flora/              # Plant sensor (MiOT)
-│   └── common/                       # Shared templates
-│       ├── esp32-ble-config.yaml
-│       ├── ble-client-template.yaml
-│       ├── mqtt-template.yaml
-│       └── secrets.example.yaml
-├── comparison/
-│   └── ble-vs-uart-vs-can.md         # Protocol comparison table
-�└── README.md
-```
-
-## External Components Used
-
-All patterns use official ESPHome external components (no custom C++):
-
-| Component | Repository | Sensors |
-|-----------|------------|---------|
-| `jbd_bms_ble` | syssi/esphome-jbd-bms | JBD BMS |
-| `daly_bms_ble` | syssi/esphome-daly-bms | Daly BMS |
-| `xiaomi_ble` | syssi/esphome-xiaomi-ble | LYWSD03MMC, etc. |
-| `xiaomi_miot` | syssi/esphome-xiaomi-miot | Mi Flora |
-
-## CI Validation
-
-Every push compiles all patterns against ESPHome 2025.6:
-
-```yaml
-matrix:
-  pattern:
-    - jbd-bms/single-bms.yaml
-    - jbd-bms/multi-bms.yaml
-    - daly-bms/single-bms.yaml
-    - daly-bms/multi-bms.yaml
-    - ble-temp-sensor/xiaomi-lywsd03mmc.yaml
-    - ble-temp-sensor/inkbird-ibs-th1.yaml
-    - ble-temp-sensor/generic-ble-temp.yaml
-    - xiaomi-mi-flora/mi-flora.yaml
-```
-
-## Contributing
-
-1. Add new pattern in `patterns/<name>/`
-2. Include `README.md`, `*.yaml`, `secrets.example.yaml`
-3. Update CI matrix in `.github/workflows/ci.yml`
-4. Ensure `esphome compile` passes locally
-5. PR welcome!
-
-## License
-
-MIT - Use freely in your projects.
-
----
-
-**Maintained by [4alvit](https://github.com/4alvit)** · Part of the Victron/Energy monitoring ecosystem
+See [CONTRIBUTING.md](CONTRIBUTING.md) for exact local checks, review and bug-report
+instructions, [CHANGELOG.md](CHANGELOG.md) for compatibility/security changes,
+and [release workflow](docs/release-workflow.md) for the validation-only policy.
+The [OpenSSF evidence index](docs/openssf-evidence.md) records assessment scope;
+a prepared assessment is not an awarded badge.

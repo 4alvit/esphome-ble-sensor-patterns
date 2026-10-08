@@ -6,7 +6,8 @@
 import json
 import re
 import shutil
-import subprocess
+# ESPHome is resolved locally and receives only confined configuration paths.
+import subprocess  # nosec B404
 import sys
 import tempfile
 from pathlib import Path, PurePosixPath
@@ -50,6 +51,9 @@ def selected_configs(root, policy, requested):
 
 def dummy_secret(key, value):
     """Replace known secret kinds with inert values required by firmware validation."""
+    if key == "api_encryption_key":
+        # Public synthetic key used only in compile-only CI, never on a device.
+        return "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
     replacements = (
         ("ssid", "ci-validation"),
         ("bindkey", "0123456789abcdef0123456789abcdef"),
@@ -104,10 +108,10 @@ def main(arguments=None):
         stage_configs(root, stage, selected)
         for name in selected:
             config = str(confined_config(stage, name))
-            subprocess.run(
+            subprocess.run(  # nosec B603
                 [executable, "config", config], check=True, stdout=subprocess.DEVNULL
             )
-            subprocess.run([executable, "compile", config], check=True)
+            subprocess.run([executable, "compile", config], check=True)  # nosec B603
     print(
         "Firmware compiled without flashing; runtime behavior needs physical hardware."
     )

@@ -23,3 +23,11 @@ logs/
 # Build
 build/
 dist/*.backup
+
+# Local Python validation caches
+__pycache__/
+*.py[cod]
+
+# Private local firmware work
+local-device/
+.venv/

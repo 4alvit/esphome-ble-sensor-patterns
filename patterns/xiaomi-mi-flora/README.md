@@ -1,57 +1,18 @@
-# Xiaomi Mi Flora Plant Sensor (HHCCJCY01) Pattern
+# Xiaomi Mi Flora (HHCCJCY01)
 
-Xiaomi Mi Flora / Flower Care plant monitor via BLE.
+`mi-flora.yaml` uses ESPHome's built-in `xiaomi_hhccjcy01` passive BLE parser.
+It declares temperature, moisture, conductivity, illuminance and battery entities;
+which values arrive depends on the sensor's hardware and firmware advertisements.
+There is no external Xiaomi repository or speculative custom frame parser.
 
-## Hardware
-- Xiaomi Mi Flora (HHCCJCY01) - older white version
-- Xiaomi Mi Flora v2 - newer green version
-- ESP32 with Bluetooth
-- Service UUID: `0xFE95` (Xiaomi MiOT)
+Copy `secrets.example.yaml` to `secrets.yaml`, set `mi_flora_mac`, networking
+credentials and a unique API encryption key. Validate and compile with the
+pinned ESPHome version before using a trusted serial connection to install.
+The previous firmware-version entity and active-connection example were not
+supported by the referenced component and are removed. Existing entity names
+for the five actual measurements are preserved.
 
-## Sensors
-| Sensor | Method | Notes |
-|--------|--------|-------|
-| Temperature | Advertisement | Real-time, from passive scan |
-| Soil Moisture | Advertisement + Connection | % (0-100) |
-| Fertility (EC) | Connection required | µS/cm via MiOT |
-| Light (Lux) | Connection required | 0-65535 lux |
-| Battery | Connection required | % |
-
-## Two Approaches
-
-### 1. Passive Scan (Advertisement Only)
-- Reads temperature and moisture from BLE advertisements
-- No active connection needed
-- Battery friendly for sensor
-- Limited data (no fertility, light, battery)
-
-### 2. Active Connection (MiOT Protocol)
-- Connects and reads via `xiaomi_miot` component
-- Full sensor suite: temp, moisture, fertility, light, battery
-- Drains sensor battery faster (~6 months vs ~12 months)
-- Use `update_interval: 300s` (5 min) minimum
-
-## Configuration
-- `mi-flora.yaml` - Combined passive + active approach
-- Use `xiaomi_miot` for full data, passive scan for temp/moisture
-
-## External Component
-```yaml
-external_components:
-  - source: github://syssi/esphome-xiaomi-miot@main
-    refresh: 1d
-    components: [xiaomi_miot]
-```
-
-## MAC Address Format
-- Old (white): `C4:7C:8D:XX:XX:XX`
-- New (green): `A4:C1:38:XX:XX:XX`
-
-## Product IDs
-- `0x00A4` - Mi Flora v1
-- `0x00A5` - Mi Flora v2
-
-## References
-- Protocol: https://github.com/Cyclenerd/Flora
-- Component: https://github.com/syssi/esphome-xiaomi-miot
-- BLE spec: Xiaomi MiOT specification
+See the [upstream Xiaomi BLE documentation](https://esphome.io/components/sensor/xiaomi_ble/)
+for supported sensor/firmware variants. Do not assume a green newer plant sensor
+or similarly named model uses the same protocol. Device behavior still requires
+physical validation. See the root [security policy](../../SECURITY.md).
