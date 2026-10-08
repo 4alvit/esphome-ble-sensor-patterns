@@ -15,24 +15,38 @@ from pathlib import Path
 import yaml
 
 
+COMMIT_SHA_PATTERN = r"[0-9a-f]{40}"
+
+
+def codeql_pins(job):
+    """Read just the analyzer action references from one job."""
+    return {
+        step["uses"].rsplit("@", 1)[-1]
+        for step in job.get("steps", [])
+        if re.match(
+            r"github/codeql-action/(init|autobuild|analyze|upload-sarif)@",
+            step.get("uses", ""),
+        )
+    }
+
+
 def validate_codeql(workflows):
-    """Every CodeQL job shares a single immutable action version."""
+    """All CodeQL components in the repository share one immutable release."""
+    repository_pins = set()
     for filename, workflow in workflows.items():
         for name, job in workflow.get("jobs", {}).items():
-            pins = {
-                step["uses"].rsplit("@", 1)[-1]
-                for step in job.get("steps", [])
-                if re.match(
-                    r"github/codeql-action/(init|autobuild|analyze)@",
-                    step.get("uses", ""),
-                )
-            }
+            pins = codeql_pins(job)
             if len(pins) > 1 or any(
-                not re.fullmatch(r"[0-9a-f]{40}", pin) for pin in pins
+                not re.fullmatch(COMMIT_SHA_PATTERN, pin) for pin in pins
             ):
                 raise ValueError(
                     f"{filename}/{name}: CodeQL actions must share one full commit SHA"
                 )
+            repository_pins.update(pins)
+    if len(repository_pins) > 1:
+        raise ValueError(
+            "CodeQL actions across workflows must share one full commit SHA"
+        )
 
 
 def validate_graph(workflows, validators):
