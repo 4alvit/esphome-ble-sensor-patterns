@@ -23,7 +23,7 @@ The project is developed publicly in [Git](https://github.com/4alvit/esphome-ble
 - [CodeQL analysis](../.github/workflows/codeql.yml)
 - [Dependency update configuration](../.github/dependabot.yml)
 
-The syntax command runs parser and compile-command contract tests and requires actionlint 1.7.12. Compilation requires the ESPHome toolchain specified in `.github/workflows/ci.yml`; the compile script refuses to install or flash firmware. Compilation does not establish radio range, packet correctness for every sensor revision, or safe operation of attached equipment.
+The syntax command runs parser and compile-command contract tests and requires actionlint 1.7.12. The full eight-example compile matrix requires the ESPHome toolchain specified in `.github/workflows/ci.yml`; the compile script refuses to install or flash firmware. Compilation does not establish radio range, packet correctness for every sensor revision, or safe operation of attached equipment.
 
 CI results are evidence for the tested revision and environment, not proof of safe production or hardware operation. Check the current default-branch runs and unresolved security findings before answering the analysis criteria. Fuzzing, coverage completeness and independent penetration testing must be supported by actual runs; ordinary unit tests must not be presented as those activities.
 
@@ -36,3 +36,9 @@ This repository uses validation-only CI. When publishing source releases, identi
 Before submitting or updating the questionnaire, verify the actual project-specific record: responses to bug and enhancement reports, vulnerability reports in every supported channel, release-note history, unresolved scanner findings, dependency status and required review settings. The primary maintainer must personally confirm knowledge of secure design and common implementation vulnerabilities. A confirmation about another repository does not establish these answers here.
 
 Assess transport encryption, credential storage and privilege limits against the implementation and deployment documented in [SECURITY.md](../SECURITY.md). Do not mark a requirement satisfied solely because a policy says it should be. Record justified non-applicability only where the actual architecture supports it. No paid certification, blanket compliance guarantee or third-party audit is claimed.
+
+The first source release is prepared in [CHANGELOG.md](../CHANGELOG.md). A
+public version tag and release must exist before the release criteria are marked
+satisfied. The firmware API uses ESPHome Noise; optional plaintext management
+services are disabled. Regression contracts enforce these defaults and the
+use of built-in Xiaomi parsers.

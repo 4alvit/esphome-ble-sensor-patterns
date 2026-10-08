@@ -14,12 +14,17 @@
   ],
   "notes": [
     "Validation-only policy: no synthetic beta/RC artifacts or tag-triggered stable releases.",
-    "ESPHome compile matrix remains required; no flashing or hardware BLE/MQTT checks. Some external components follow upstream main."
+    "All eight complete examples require the pinned ESPHome compile matrix; JBD/Daly external sources are commit-pinned. No CI flashing or hardware BLE/MQTT checks."
   ],
   "esphome_configs": [
-    "patterns/jbd-bms/single-bms.yaml",
+    "patterns/ble-temp-sensor/generic-ble-temp.yaml",
+    "patterns/ble-temp-sensor/inkbird-ibs-th1.yaml",
+    "patterns/ble-temp-sensor/xiaomi-lywsd03mmc.yaml",
+    "patterns/daly-bms/multi-bms.yaml",
+    "patterns/daly-bms/single-bms.yaml",
     "patterns/jbd-bms/multi-bms.yaml",
-    "patterns/ble-temp-sensor/inkbird-ibs-th1.yaml"
+    "patterns/jbd-bms/single-bms.yaml",
+    "patterns/xiaomi-mi-flora/mi-flora.yaml"
   ],
   "esphome_version": "2025.11.0",
   "visibility": "public",

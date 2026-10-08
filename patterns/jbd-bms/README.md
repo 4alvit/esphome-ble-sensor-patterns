@@ -30,7 +30,7 @@ JBD (Jiabaida) BMS with BLE interface. Uses `syssi/esphome-jbd-bms` external com
 ## External Component
 ```yaml
 external_components:
-  - source: github://syssi/esphome-jbd-bms@main
+  - source: github://syssi/esphome-jbd-bms@fdd33434accf7b1abd10bb6cc8030fbe577bfcb3
     refresh: 1d
     components: [jbd_bms_ble]
 ```
