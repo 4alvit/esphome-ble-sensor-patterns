@@ -29,13 +29,13 @@ logger:
   level: INFO
 
 api:
+  encryption:
+    key: !secret api_encryption_key
   reboot_timeout: 0s
 
-ota:
-  platform: esphome
+# Network OTA is disabled by default; see SECURITY.md before enabling updates.
 
-web_server:
-  port: 80
+# The optional HTTP management server is disabled by default.
 
 esp32_ble_tracker:
   id: ble_tracker

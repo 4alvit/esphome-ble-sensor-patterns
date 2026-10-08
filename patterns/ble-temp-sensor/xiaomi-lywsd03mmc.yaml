@@ -1,6 +1,6 @@
 # Xiaomi Mijia BT Thermometer 2 (LYWSD03MMC)
 # Encrypted BLE advertisements (AES-CCM) - requires bindkey
-# Uses xiaomi_ble component from syssi/esphome-xiaomi-ble
+# Uses ESPHome built-in xiaomi_lywsd03mmc sensor support.
 
 esphome:
   name: xiaomi-lywsd03mmc
@@ -35,18 +35,13 @@ logger:
   level: INFO
 
 api:
+  encryption:
+    key: !secret api_encryption_key
   reboot_timeout: 0s
 
-ota:
-  platform: esphome
+# Network OTA is disabled by default; see SECURITY.md before enabling updates.
 
-web_server:
-  port: 80
-
-external_components:
-  - source: github://syssi/esphome-xiaomi-ble@main
-    refresh: 1d
-    components: [xiaomi_ble]
+# The optional HTTP management server is disabled by default.
 
 esp32_ble_tracker:
   id: ble_tracker
@@ -56,17 +51,11 @@ esp32_ble_tracker:
     active: false
     continuous: true
 
-# Get bindkey from Mi Home app or telnet
-# Method 1: Mi Home -> Device -> Firmware -> Long press "Check Update" -> version copied
-# Method 2: telnet into Mi Home gateway, cat /data/miio/device_info.json
-xiaomi_ble:
-  - mac_address: "A4:C1:38:XX:XX:XX"  # REPLACE with your sensor MAC
-    bindkey: !secret xiaomi_lywsd03mmc_bindkey
-    id: lywsd03mmc_sensor
 
 sensor:
-  - platform: xiaomi_ble
-    xiaomi_ble_id: lywsd03mmc_sensor
+  - platform: xiaomi_lywsd03mmc
+    mac_address: !secret xiaomi_lywsd03mmc_mac
+    bindkey: !secret xiaomi_lywsd03mmc_bindkey
     temperature:
       name: "Temperature"
       id: temp
@@ -79,9 +68,6 @@ sensor:
       name: "Battery"
       id: battery
       accuracy_decimals: 0
-    battery_voltage:
-      name: "Battery Voltage"
-      accuracy_decimals: 3
 
   # ESP32 Status
   - platform: wifi_signal

@@ -33,18 +33,17 @@ logger:
   level: DEBUG
 
 api:
+  encryption:
+    key: !secret api_encryption_key
   reboot_timeout: 0s
 
-ota:
-  platform: esphome
-  password: !secret ota_password
+# Network OTA is disabled by default; see SECURITY.md before enabling updates.
 
-web_server:
-  port: 80
+# The optional HTTP management server is disabled by default.
 
 # Daly BMS BLE component from external repository
 external_components:
-  - source: github://syssi/esphome-daly-bms@main
+  - source: github://syssi/esphome-daly-bms@f97d33c987fc38cf9bb5576141dade997a0dadc9
     refresh: 1d
     components: [daly_bms_ble]
 
@@ -99,7 +98,7 @@ sensor:
     capacity_remaining:
       name: "Remaining Capacity"
       id: pack_capacity
-    cycles:
+    charging_cycles:
       name: "Charge Cycles"
     temperature_1:
       name: "Temperature 1"
@@ -109,16 +108,27 @@ sensor:
       name: "Temperature 3"
     temperature_4:
       name: "Temperature 4"
-    mos_temperature:
+    mosfet_temperature:
       name: "MOS Temperature"
 
   # Balancing status
   - platform: daly_bms_ble
     daly_bms_ble_id: daly_bms
-    balancing_current:
+    balance_current:
       name: "Balancing Current"
-    balancing_status:
-      name: "Balancing Active"
+
+  # This derived value is an estimate, not measured battery energy.
+  - platform: template
+    name: "Pack Energy"
+    id: pack_energy
+    unit_of_measurement: "Wh"
+    accuracy_decimals: 1
+    update_interval: 30s
+    lambda: |-
+      if (id(pack_voltage).has_state() && id(pack_capacity).has_state()) {
+        return id(pack_voltage).state * id(pack_capacity).state;
+      }
+      return NAN;
 
   # ESP32 status
   - platform: wifi_signal
@@ -137,21 +147,10 @@ binary_sensor:
     discharging:
       name: "Discharging"
 
-  # Protections
   - platform: daly_bms_ble
     daly_bms_ble_id: daly_bms
-    overvoltage_protection:
-      name: "Overvoltage Protection"
-    undervoltage_protection:
-      name: "Undervoltage Protection"
-    overcurrent_charge_protection:
-      name: "Overcurrent Charge Protection"
-    overcurrent_discharge_protection:
-      name: "Overcurrent Discharge Protection"
-    overtemperature_protection:
-      name: "Overtemperature Protection"
-    undertemperature_protection:
-      name: "Undertemperature Protection"
+    balancing:
+      name: "Balancing Active"
 
   - platform: status
     name: "ESP32 Status"
@@ -159,17 +158,3 @@ binary_sensor:
 button:
   - platform: restart
     name: "Restart"
-
-# Template sensors for derived values
-template:
-  - sensor:
-      - name: "Pack Energy"
-        id: pack_energy
-        unit_of_measurement: "Wh"
-        accuracy_decimals: 1
-        update_interval: 30s
-        lambda: |
-          if (id(pack_voltage).has_state() && id(pack_capacity).has_state()) {
-            return id(pack_voltage).state * id(pack_capacity).state;
-          }
-          return NAN;

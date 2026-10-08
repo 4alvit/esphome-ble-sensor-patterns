@@ -35,16 +35,16 @@ logger:
     daly_bms_ble: WARN
 
 api:
+  encryption:
+    key: !secret api_encryption_key
   reboot_timeout: 0s
 
-ota:
-  platform: esphome
+# Network OTA is disabled by default; see SECURITY.md before enabling updates.
 
-web_server:
-  port: 80
+# The optional HTTP management server is disabled by default.
 
 external_components:
-  - source: github://syssi/esphome-daly-bms@main
+  - source: github://syssi/esphome-daly-bms@f97d33c987fc38cf9bb5576141dade997a0dadc9
     refresh: 1d
     components: [daly_bms_ble]
 
