@@ -9,7 +9,7 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCES = ['scripts/compile-esphome.py', 'scripts/security_check.py']
+SOURCES = ['scripts/compile-esphome.py', 'scripts/install-esphome.py', 'scripts/security_check.py']
 
 
 def main():

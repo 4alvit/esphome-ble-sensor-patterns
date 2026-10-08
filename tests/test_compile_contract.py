@@ -110,7 +110,9 @@ class SecureFirmwareDefaultsTests(unittest.TestCase):
             stage = Path(temporary)
             ADAPTER.stage_configs(root, stage, policy["esphome_configs"])
             data = yaml.safe_load((stage / "patterns/jbd-bms/secrets.yaml").read_text())
-            self.assertEqual(len(base64.b64decode(data["api_encryption_key"], validate=True)), 32)
+            key = base64.b64decode(data["api_encryption_key"], validate=True)
+            self.assertEqual(len(key), 32)
+            self.assertNotEqual(key, bytes(32))
             self.assertEqual(data["wifi_ssid"], "ci-validation")
             self.assertEqual(data["mqtt_pass"], "ci-validation-password")
 

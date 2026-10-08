@@ -1,0 +1,2 @@
+# This compiler lock supports Linux CI only. The installer enforces the host.
+esphome==2026.10.0b1 ; sys_platform == 'linux'
