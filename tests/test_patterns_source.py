@@ -43,8 +43,21 @@ class PatternsReleaseNotesTests(unittest.TestCase):
 
 
 class ProductionInventoryTests(unittest.TestCase):
+    def test_source_inventory_contains_required_release_inputs(self):
+        root = Path(__file__).resolve().parents[1]
+        inventory = set(patterns_source.inventory(root))
+        self.assertTrue({
+            "scripts/fuzz_python_preflight.py",
+            "tests/test_patterns_source.py",
+            "tests/test_compile_stable_dispatch.py",
+        } <= inventory)
+
     def test_source_inventory_contains_tracked_runtime_and_regression_inputs(self):
         root = Path(__file__).resolve().parents[1]
+        # Published source acceptance runs this suite without repository metadata.
+        # Check the current root, so an enclosing checkout cannot mask omissions.
+        if not (root / ".git").exists():
+            self.skipTest("Tracked-file comparison requires a Git checkout")
         tracked = subprocess.check_output(
             ["git", "ls-files", "-z", "--", "scripts", "tests", "fuzz",
              ".github/release-tests", ".github/workflow-tests", ".github/fuzz.json"],
