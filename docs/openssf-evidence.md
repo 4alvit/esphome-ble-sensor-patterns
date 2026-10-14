@@ -29,7 +29,7 @@ CI results are evidence for the tested revision and environment, not proof of sa
 
 ## Changes and releases
 
-This repository uses validation-only CI. When publishing source releases, identify the tested ESPHome versions and any compatibility, security or migration changes. The [release policy](../.release-policy.json) records automation behavior. A new release must identify its source revision and explain notable changes; security fixes must identify relevant advisories when known.
+This repository publishes versioned source beta/RC archives after required validation. The eight pinned ESPHome compile checks and synthetic native parser tests remain required. Each source release identifies the tested ESPHome version and compatibility, security and migration changes. The [release policy](../.release-policy.json) records automation behavior. A new release must identify its source revision and explain notable changes; security fixes must identify relevant advisories when known.
 
 ## Criteria still requiring verification
 

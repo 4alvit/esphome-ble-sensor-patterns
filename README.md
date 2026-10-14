@@ -1,5 +1,12 @@
 # ESPHome BLE Sensor Patterns
 
+[![Fuzzing: RC only](https://img.shields.io/badge/Fuzzing-RC%20only-blue)](docs/inkbird-contract.md)
+
+Source beta/RC releases include the reviewed examples and production Inkbird
+parser. RC qualification covers synthetic host mutation only; each report is
+bound to its release tag and source SHA. See [source releases](docs/source-releases.md)
+and the [narrow Inkbird decoding contract](docs/inkbird-contract.md).
+
 Reference configurations for ESP32 BLE telemetry using JBD/Daly battery monitors,
 Xiaomi temperature and plant sensors, and an Inkbird example. These are starting
 points for hardware validation, not battery protection or control firmware.
@@ -77,7 +84,7 @@ physical sensor before relying on its values.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for exact local checks, review and bug-report
 instructions, [CHANGELOG.md](CHANGELOG.md) for compatibility/security changes,
-and [release workflow](docs/release-workflow.md) for the validation-only policy.
+and [release workflow](docs/release-workflow.md) for the source beta/RC policy.
 The [OpenSSF evidence index](docs/openssf-evidence.md) records assessment scope;
 a prepared assessment is not an awarded badge.
 

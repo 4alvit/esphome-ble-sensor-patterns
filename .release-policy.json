@@ -1,6 +1,6 @@
 {
   "repository": "4alvit/esphome-ble-sensor-patterns",
-  "mode": "validation-only",
+  "mode": "release",
   "default_branch": "main",
   "validation_workflows": [
     "validate.yml",
@@ -10,11 +10,13 @@
     "security.yml"
   ],
   "local_checks": [
-    "bash scripts/ci.sh"
+    "bash scripts/ci.sh",
+    "python3 -m unittest discover -s tests -p 'test_*.py' -v"
   ],
   "notes": [
-    "Validation-only policy: no synthetic beta/RC artifacts or tag-triggered stable releases.",
-    "All eight complete examples require the pinned ESPHome compile matrix; JBD/Daly external sources are commit-pinned. No CI flashing or hardware BLE/MQTT checks."
+    "Source archive only: explicit inventory of examples, production parser, tests and build/release instructions; no firmware binaries or operator secrets.",
+    "All eight pinned ESPHome compile checks remain required. Source acceptance runs synthetic host tests on the extracted package; physical compatibility is not certified.",
+    "Only the documented TH1/TH1 Mini internal-sensor compatibility profile is decoded. MAC selection is not authentication; no radio, MQTT, flashing or deployment occurs in acceptance."
   ],
   "esphome_configs": [
     "patterns/ble-temp-sensor/generic-ble-temp.yaml",
@@ -28,5 +30,32 @@
   ],
   "esphome_version": "2026.10.0b1",
   "visibility": "public",
-  "single_entry_ci": true
+  "single_entry_ci": true,
+  "version_file": "SOURCE_VERSION",
+  "release_notes": "CHANGELOG.md",
+  "artifact_pattern": "release-assets*",
+  "toolkit_revision": "fb370993d61757a03b34f9cdfeebf184cde877a0",
+  "versioning": {
+    "schema": 1,
+    "promotion": "promote-bytes",
+    "toolkit_revision": "fb370993d61757a03b34f9cdfeebf184cde877a0",
+    "files": [
+      {
+        "path": "SOURCE_VERSION",
+        "format": "text",
+        "value": "package"
+      }
+    ],
+    "artifacts": [
+      {
+        "path": "esphome-ble-sensor-patterns-*.tar.gz",
+        "format": "tar-text",
+        "member": "esphome-ble-sensor-patterns/SOURCE_VERSION",
+        "value": "package"
+      }
+    ]
+  },
+  "fuzzing": {
+    "toolkit_ref": "fb370993d61757a03b34f9cdfeebf184cde877a0"
+  }
 }

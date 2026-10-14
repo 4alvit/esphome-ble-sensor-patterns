@@ -14,5 +14,5 @@ jobs:
           egress-policy: audit
 
       - run: |
-          echo 'This repository uses validation-only policy. Run Quality gate or bash scripts/ci.sh.'
+          echo 'Use release-pipeline.yml to request a versioned source beta or RC.'
           exit 1

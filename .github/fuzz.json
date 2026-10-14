@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "language": "c",
+  "setup": [
+    [
+      "clang++-18",
+      "-std=c++17",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=fuzzer,address,undefined",
+      "-fno-omit-frame-pointer",
+      "-I.",
+      "fuzz/fuzz_inkbird.cpp",
+      "-o",
+      "fuzz-inkbird"
+    ]
+  ],
+  "targets": [
+    {
+      "name": "inkbird-internal",
+      "engine": "libfuzzer",
+      "command": [
+        "./fuzz-inkbird",
+        "-max_len=128"
+      ],
+      "seconds": 60,
+      "corpus": "fuzz/corpus/inkbird-internal"
+    }
+  ]
+}
