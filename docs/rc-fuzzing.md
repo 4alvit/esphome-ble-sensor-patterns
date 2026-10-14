@@ -112,9 +112,10 @@ cheap check on relevant pull-request, merge-group and push changes. The job
 caches pip downloads keyed by the requirements file; installation still requires
 the reviewed hashes. `preflight-paths` is an optional list of literal source
 files or directories, without globs or trailing slashes. The path `.` selects
-every change. Fuzz manifests, locks,
-CI workflows and shared helpers always count as relevant. Unavailable diff
-evidence runs the check; documentation-only unrelated changes can skip it.
+every change. Fuzz manifests, the canonical `.github/requirements-fuzz.txt`
+lock, CI workflows and shared helpers always count as relevant. Add any custom
+dependency lock paths explicitly to `preflight-paths`. Unavailable diff evidence
+runs the check; documentation-only unrelated changes can skip it.
 
 Optional top-level `preflight` is a list of reviewed deterministic command argv
 arrays, for example `[["node", "--test", "fuzz/parser.test.mjs"]]`. Each command
