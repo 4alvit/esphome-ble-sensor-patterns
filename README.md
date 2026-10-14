@@ -1,5 +1,7 @@
 # ESPHome BLE Sensor Patterns
 
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15470/badge)](https://www.bestpractices.dev/en/projects/15470)
+
 [![Fuzzing: RC only](https://img.shields.io/badge/Fuzzing-RC%20only-blue)](docs/inkbird-contract.md)
 
 Source beta/RC releases include the reviewed examples and production Inkbird
@@ -90,3 +92,7 @@ a prepared assessment is not an awarded badge.
 
 See [dependency lock maintenance](docs/DEPENDENCY_LOCKS.md) for the compiler
 selection, lock regeneration and validation scope.
+
+## Project participation and maintenance
+
+See [Contributing](CONTRIBUTING.md), [Governance](GOVERNANCE.md), the [Code of Conduct](CODE_OF_CONDUCT.md), [Security policy](SECURITY.md), and the [roadmap](ROADMAP.md). The [OpenSSF evidence index](docs/openssf-evidence.md) records source and validation scope; only the public badge record establishes an awarded level.

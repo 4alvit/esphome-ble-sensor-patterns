@@ -28,7 +28,7 @@ For a bug fix, add a regression test that fails before the fix and passes afterw
 
 Keep pull requests focused and explain the problem, resulting behavior, compatibility impact and exact validation performed. Update the user-facing documentation when changing configuration, interfaces or operational behavior. Call out tests not run and their prerequisites. Maintainers review changes through GitHub pull requests and required CI; automated review is supplemental. Contributions are provided under the repository's [MIT license](LICENSE); a contributor must have the right to submit the work.
 
-This repository uses validation-only CI. When publishing source releases, identify the tested ESPHome versions and any compatibility, security or migration changes.
+This repository publishes versioned source beta/RC releases after required validation. Follow [RELEASING.md](RELEASING.md), identify the tested ESPHome versions, and record compatibility, security and migration changes. Source-package acceptance is separate from physical device acceptance.
 
 ## Source and interfaces
 
