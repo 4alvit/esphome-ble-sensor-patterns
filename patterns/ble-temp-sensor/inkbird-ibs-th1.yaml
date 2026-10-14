@@ -1,8 +1,10 @@
-# Inkbird IBS-TH1 / IBS-TH2 / IBS-TH3
-# Bluetooth thermometer/hygrometer with display
+# Inkbird TH1 / TH1 Mini internal-sensor compatibility profile
+# No claim of compatibility with other hardware revisions or models
 # Passive BLE advertisement parsing (no connection needed)
 
 esphome:
+  includes:
+    - inkbird_th1_parser.h
   name: inkbird-ibs-th1
   friendly_name: "Inkbird IBS-TH1"
 
@@ -45,30 +47,31 @@ esp32_ble_tracker:
     active: false
     continuous: true
 
-  on_ble_manufacturer_data_advertise:
-    - manufacturer_id: "038A"  # Inkbird
+  # MAC selection is not authentication. See docs/inkbird-contract.md.
+  on_ble_advertise:
+    - mac_address: !secret inkbird_th1_mac
       then:
         - lambda: |-
-            auto data = x;
-            if (data.size() >= 11) {
-              // IBS-TH1 format (manufacturer data)
-              // Byte 0-1: manufacturer ID (0x8A03 little-endian)
-              // Byte 2: frame type (0x2D for data)
-              // Byte 3-4: temperature (int16, 0.01°C)
-              // Byte 5: humidity (uint8, 1%)
-              // Byte 6: battery (uint8, 0-100)
-              // Byte 7-10: MAC address (reversed)
-              if (data[2] == 0x2D) {
-                int16_t temp_raw = int16_t(data[3] | (data[4] << 8));
-                float temp = temp_raw / 100.0f;
-                uint8_t hum = data[5];
-                uint8_t bat = data[6];
-                id(sensor_temperature).publish_state(temp);
-                id(sensor_humidity).publish_state(hum);
-                id(sensor_battery).publish_state(bat);
-                ESP_LOGD("inkbird", "T=%.2f H=%u B=%u", temp, hum, bat);
-              }
+            if (x.get_address_type() != esphome::ble_device_base::BLE_ADDR_TYPE_PUBLIC ||
+                !x.get_service_datas().empty()) {
+              return;
             }
+            const auto &entries = x.get_manufacturer_datas();
+            if (entries.size() != 1) {
+              return;
+            }
+            const auto &entry = entries[0];
+            if (entry.uuid.type() != esphome::ble_device_base::ESPBTUUID::Type::UUID16) {
+              return;
+            }
+            ble_patterns::InkbirdReading reading{};
+            if (!ble_patterns::decode_inkbird_th1_internal(
+                    entry.uuid.uuid16(), entry.data.data(), entry.data.size(), reading)) {
+              return;
+            }
+            id(sensor_temperature).publish_state(reading.temperature_hundredths / 100.0f);
+            id(sensor_humidity).publish_state(reading.humidity_hundredths / 100.0f);
+            id(sensor_battery).publish_state(reading.battery_percent);
 
 sensor:
   - platform: template
@@ -81,7 +84,7 @@ sensor:
     name: "Inkbird Humidity"
     id: sensor_humidity
     unit_of_measurement: "%"
-    accuracy_decimals: 0
+    accuracy_decimals: 2
 
   - platform: template
     name: "Inkbird Battery"
@@ -101,5 +104,4 @@ binary_sensor:
   - platform: status
     name: "ESP32 Status"
 
-# Alternative: Use Inkbird BLE component if interested in connection
-# esp32_ble_client for active polling (not needed for passive scan)
+# External-probe frames are intentionally rejected by this internal-only example.

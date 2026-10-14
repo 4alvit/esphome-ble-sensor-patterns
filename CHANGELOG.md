@@ -1,14 +1,38 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.1]
+
+### Added
+
+Versioned source archives with explicit membership, extracted-source acceptance,
+ASan/UBSan regression tests and RC-only mutation fuzzing of the production Inkbird
+parser. Eight pinned ESPHome compile checks remain required.
+
+### Fixed
+
+Replace the unsupported fixed-0x038A/0x2D Inkbird layout with the narrow internal
+TH1/TH1 Mini compatibility profile documented from pinned upstream decoders.
+Select one configured sensor MAC; reject external-probe frames and unsupported
+metadata. Humidity is decoded in hundredths of a percent, not whole percent.
+
 
 ### Security
+
+Reject malformed/truncated input and impossible humidity/battery percentages
+before publishing any reading. Sensor selection is not authentication. Source
+packages contain only reviewed files, never private credentials or firmware.
 
 Hash-lock Python dependencies and build tools used by firmware CI and YAML
 validation. Replace the vulnerable 2025.11.0 compiler dependency set with the
 official ESPHome 2026.10.0b1 prerelease and its supported PlatformIO 6.2.0 range.
 
 ### Upgrade
+
+Copy `inkbird_th1_parser.h` beside the Inkbird YAML and configure the new private
+`inkbird_th1_mac` secret. This example intentionally supports only internal-sensor
+frames in the documented profile. Earlier TH2/TH3 claims were not substantiated;
+other revisions and external probes require separate validation. No hardware or
+radio validation was performed for this source release.
 
 The compile-only CI compiler is a prerelease and now requires Linux with
 CPython 3.12. The installer fails before pip on unsupported hosts. The upstream

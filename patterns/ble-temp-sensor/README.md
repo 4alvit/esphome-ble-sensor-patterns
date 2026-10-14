@@ -4,8 +4,11 @@
   component for stock-firmware encrypted advertisements. Set the sensor MAC and
   actual device bindkey in private `secrets.yaml`. It provides temperature,
   humidity and battery level; no unsupported battery-voltage entity is declared.
-- `inkbird-ibs-th1.yaml` is a protocol-specific advertisement example. Validate
-  packet format against the physical sensor revision before relying on values.
+- `inkbird-ibs-th1.yaml` implements the narrow TH1 / TH1 Mini internal-sensor
+  [compatibility profile](../../docs/inkbird-contract.md). Copy its adjacent
+  `inkbird_th1_parser.h` too and set `inkbird_th1_mac` privately. External probes,
+  TH2 and TH3 are not supported by this example. Physical revision compatibility
+  remains unverified.
 - `generic-ble-temp.yaml` is a compilable starting point. It reports unavailable
   values until a real parser is implemented, rather than inventing measurements.
 

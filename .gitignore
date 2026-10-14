@@ -31,3 +31,10 @@ __pycache__/
 # Private local firmware work
 local-device/
 .venv/
+
+# Source release and native host test outputs
+release-dist/
+release-assets/
+.release-plan.json
+.release-inputs.json
+fuzz-inkbird

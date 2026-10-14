@@ -46,24 +46,24 @@ class ImmutableActionsTests(unittest.TestCase):
 
     def test_mutable_step_action_is_rejected(self):
         self.change_reference("actions/checkout@main")
-        with self.assertRaisesRegex(ValueError, "immutable SHA"):
+        with self.assertRaisesRegex(ValueError, "full commit SHA"):
             contracts.validate(self.root)
 
     def test_mutable_reusable_workflow_is_rejected(self):
         self.change_reference("owner/repo/.github/workflows/ci.yml@v1", reusable=True)
-        with self.assertRaisesRegex(ValueError, "immutable SHA"):
+        with self.assertRaisesRegex(ValueError, "full commit SHA"):
             contracts.validate(self.root)
 
     def test_docker_action_requires_content_digest(self):
         self.change_reference("docker://alpine:latest")
-        with self.assertRaisesRegex(ValueError, "immutable SHA"):
+        with self.assertRaisesRegex(ValueError, "immutable SHA-256 digest"):
             contracts.validate(self.root)
         self.change_reference("docker://alpine@sha256:" + "a" * 64)
         contracts.validate(self.root)
 
     def test_malformed_action_is_rejected(self):
         self.change_reference(42)
-        with self.assertRaisesRegex(ValueError, "immutable SHA"):
+        with self.assertRaisesRegex(ValueError, "full commit SHA"):
             contracts.validate(self.root)
 
     def test_local_action_remains_permitted(self):
