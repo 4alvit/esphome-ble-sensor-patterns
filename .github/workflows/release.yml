@@ -1,18 +1,142 @@
-# Previous publisher preserved in docs/legacy-workflows for migration review.
-name: Legacy release entry point
+name: Request stable promotion
 on:
   workflow_dispatch:
-permissions:
-  contents: read
+    inputs:
+      rc_tag:
+        description: Published RC to promote (vX.Y.Z-rc.N)
+        type: string
+        required: true
+      expected_sha:
+        description: Reviewed current main commit (40 lowercase hex characters)
+        type: string
+        required: true
+permissions: {}
+concurrency:
+  group: stable-dispatch-${{ github.repository }}
+  cancel-in-progress: false
 jobs:
-  migration:
-    runs-on: ${{ fromJSON((vars.CI_RUNNER_MODE == 'self-hosted' || vars.CI_RUNNER_MODE == 'k3s') && ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || (contains(fromJSON('["push","schedule","workflow_dispatch"]'), github.event_name) && github.ref == format('refs/heads/{0}', github.event.repository.default_branch))) && (vars.CI_RUNNER_LABELS || '[]') || '["ubuntu-latest"]') }}
+  request:
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.repository == '4alvit/esphome-ble-sensor-patterns' &&
+      github.actor == '4alvit' && github.triggering_actor == '4alvit' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@351661ca32ac09a36dc5ee2d536e3128f2a3c8ed # v2.22.0
         with:
           egress-policy: audit
+      - name: Dispatch the existing pipeline as the separate bot
+        env:
+          BOT_PAT: ${{ secrets.BOT_PAT }}
+          RC_TAG: ${{ inputs.rc_tag }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        shell: bash
+        run: |
+          python3 - <<'PY_RELAY'
+          import json
+          import os
+          import re
+          import urllib.error
+          import urllib.request
+          from pathlib import Path
 
-      - run: |
-          echo 'Use release-pipeline.yml to request a versioned source beta or RC.'
-          exit 1
+          REPO = "4alvit/esphome-ble-sensor-patterns"
+          OWNER = "4alvit"
+          BOT = "californiantiramisu"
+          WORKFLOW = "release-pipeline.yml"
+
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  raise RuntimeError("GitHub API redirect rejected")
+
+
+          def api(path, payload=None, missing=False):
+              request = urllib.request.Request(
+                  "https://api.github.com/" + path,
+                  data=None if payload is None else json.dumps(payload).encode(),
+                  headers={"Authorization": "Bearer " + os.environ["BOT_PAT"],
+                           "Accept": "application/vnd.github+json",
+                           "Content-Type": "application/json",
+                           "X-GitHub-Api-Version": "2026-03-10"},
+                  method="GET" if payload is None else "POST",
+              )
+              try:
+                  with urllib.request.build_opener(NoRedirect()).open(request, timeout=10) as response:
+                      raw = response.read(1_048_577)
+                      if len(raw) > 1_048_576:
+                          raise RuntimeError("GitHub API response exceeded bound")
+                      return json.loads(raw)
+              except urllib.error.HTTPError as error:
+                  if missing and payload is None and error.code == 404:
+                      return None
+                  raise RuntimeError("GitHub API request failed: HTTP " + str(error.code)) from None
+
+
+          def require(condition, message):
+              if not condition:
+                  raise RuntimeError(message)
+
+
+          def dispatch(call, env, summary):
+              require(env["GITHUB_EVENT_NAME"] == "workflow_dispatch", "Manual dispatch required")
+              require(env["GITHUB_REPOSITORY"] == REPO, "Unexpected repository")
+              require(env["GITHUB_ACTOR"] == OWNER and env["GITHUB_TRIGGERING_ACTOR"] == OWNER,
+                      "Only the repository owner may request promotion")
+              require(env["GITHUB_RUN_ATTEMPT"] == "1", "Do not rerun a dispatch; inspect its outcome first")
+              rc = env["RC_TAG"]
+              expected = env["EXPECTED_SHA"]
+              require(re.fullmatch(r"v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)-rc\.[1-9][0-9]*", rc),
+                      "Expected a strict vX.Y.Z-rc.N tag")
+              require(re.fullmatch(r"[0-9a-f]{40}", expected), "Expected a complete commit SHA")
+              require(call("user")["login"] == BOT, "BOT_PAT must authenticate the designated separate bot")
+              info = call("repos/" + REPO)
+              branch = info["default_branch"]
+              require(branch == "main" and not info["private"] and not info["archived"],
+                      "Expected the public main repository")
+              require(env["GITHUB_REF"] == "refs/heads/main" and env["GITHUB_SHA"] == expected,
+                      "Dispatch must run from the reviewed default-branch commit")
+              ref_path = "repos/" + REPO + "/git/ref/heads/main"
+              require(call(ref_path)["object"]["sha"] == expected, "Default branch moved")
+              release = call("repos/" + REPO + "/releases/tags/" + rc)
+              require(release["tag_name"] == rc and release["prerelease"] and not release["draft"],
+                      "The RC must already be published")
+              stable = rc.split("-rc.")[0]
+              require(call("repos/" + REPO + "/releases/tags/" + stable, missing=True) is None,
+                      "Stable release already exists")
+              require(call("repos/" + REPO + "/git/ref/tags/" + stable, missing=True) is None,
+                      "Stable tag already exists")
+              protection = call("repos/" + REPO + "/environments/release")
+              reviewers = [rule for rule in protection["protection_rules"]
+                           if rule["type"] == "required_reviewers"]
+              require(len(reviewers) == 1 and reviewers[0].get("prevent_self_review") is True
+                      and any(item["type"] == "User" and item["reviewer"]["login"] == OWNER
+                              for item in reviewers[0]["reviewers"]),
+                      "Release must retain owner approval and prevent self-review")
+              pipeline = "repos/" + REPO + "/actions/workflows/" + WORKFLOW
+              for status in ("queued", "in_progress", "waiting", "pending", "requested"):
+                  runs = call(pipeline + "/runs?per_page=1&status=" + status)
+                  require(runs["total_count"] == 0, "An existing release pipeline is still active")
+              require(call(ref_path)["object"]["sha"] == expected, "Default branch moved during preflight")
+              inputs = {"channel": "stable", "rc_tag": rc, "expected_sha": expected}
+              summary.write("Requested stable promotion of `" + rc + "` at `" + expected + "`.\n")
+              summary.flush()
+              # Exactly one write; an unknown HTTP outcome must be investigated, never retried here.
+              result = call(pipeline + "/dispatches", {"ref": branch, "inputs": inputs})
+              run_id = result.get("workflow_run_id")
+              require(type(run_id) is int and run_id > 0, "Unknown dispatch outcome; inspect release runs")
+              url = "https://github.com/" + REPO + "/actions/runs/" + str(run_id)
+              require(result.get("html_url") == url, "Unexpected dispatch response; inspect release runs")
+              summary.write("Separate bot dispatch: [run " + str(run_id) + "](" + url + ").\n")
+              summary.write("The existing release environment still requires its owner's approval.\n")
+              print(json.dumps({"workflow_run_id": run_id, "html_url": url}))
+              return result
+
+
+          if __name__ == "__main__":
+              with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as summary:
+                  dispatch(api, os.environ, summary)
+          PY_RELAY
