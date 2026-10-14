@@ -102,6 +102,7 @@
   "scripts/change_scope.py",
   "scripts/ci.sh",
   "scripts/compile-esphome.py",
+  "scripts/fuzz_python_preflight.py",
   "scripts/install-esphome.py",
   "scripts/merge_oci_archives.py",
   "scripts/package-release.sh",
@@ -128,6 +129,7 @@
   "source-files.json",
   "tests/inkbird_native.cpp",
   "tests/test_compile_contract.py",
+  "tests/test_compile_stable_dispatch.py",
   "tests/test_compiler_install.py",
   "tests/test_inkbird_native.py",
   "tests/test_patterns_source.py"

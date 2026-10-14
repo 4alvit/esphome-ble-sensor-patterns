@@ -42,6 +42,19 @@ class PatternsReleaseNotesTests(unittest.TestCase):
                 self.assertIn("Source-bound build evidence.", notes)
 
 
+class ProductionInventoryTests(unittest.TestCase):
+    def test_source_inventory_contains_tracked_runtime_and_regression_inputs(self):
+        root = Path(__file__).resolve().parents[1]
+        tracked = subprocess.check_output(
+            ["git", "ls-files", "-z", "--", "scripts", "tests", "fuzz",
+             ".github/release-tests", ".github/workflow-tests", ".github/fuzz.json"],
+            cwd=root,
+        ).decode().split("\0")
+        inventory = set(json.loads((root / "source-files.json").read_text()))
+        missing = set(tracked) - {""} - inventory
+        self.assertEqual(set(), missing, f"Source archive omits maintained inputs: {sorted(missing)}")
+
+
 class PatternsSourceTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
