@@ -38,3 +38,7 @@ sensor values are plaintext unless you configure ESP-IDF MQTT TLS with a trusted
 is not an authenticated control channel. Do not use these examples over an
 untrusted network or as a battery protection mechanism. A sensor bindkey is a
 protocol key, not a password verifier; no user-password database is maintained.
+
+## Reporter credit
+
+With the reporter's consent, fixed vulnerability advisories and release notes credit the person or organization that reported the issue. Respect requests for anonymity. Record affected versions, mitigation and the fixed revision without disclosing private reproduction data or credentials.
