@@ -1,5 +1,9 @@
 # Inkbird internal-sensor decoding contract
 
+See the [illustrated RC fuzzing process and verified rollout results](https://github.com/victron-venus/venus-os-ci-toolkit/blob/main/docs/rc-fuzzing-results.md)
+for the shared release flow, evidence requirements and a dated cross-project
+snapshot. The project-specific scope and reproduction guidance below still apply.
+
 This repository owns the pure `decode_inkbird_th1_internal` C++ function and calls
 it from `inkbird-ibs-th1.yaml`. It implements a narrow compatibility profile for
 TH1 / TH1 Mini internal-sensor advertisements. It is not a manufacturer protocol
