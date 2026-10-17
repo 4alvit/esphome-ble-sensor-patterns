@@ -4,7 +4,7 @@
 
 ### Changed
 
-- Add illustrated RC fuzzing process and results documentation and link it from the project guides.
+- Link the shared illustrated RC fuzzing process and result guides; these documentation links were added after the published v0.1.2 source.
 
 ### Upgrade
 
