@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.3] - 2026-10-17
+
+### Changed
+
+- Add illustrated RC fuzzing process and results documentation and link it from the project guides.
+
+### Upgrade
+
+Parser behavior and supported sensor profiles remain unchanged from 0.1.2. Preserve device configuration and the previous accepted source package or firmware for rollback. Publication does not flash devices.
+
+### Security
+
+No new parser security fix is claimed. Existing compile checks, sanitizer tests and source-bound RC fuzzing remain required; physical sensor acceptance is separate.
+
 ## [0.1.2] - Development line
 
 ### Changed
