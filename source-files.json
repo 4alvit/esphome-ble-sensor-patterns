@@ -1,7 +1,6 @@
 [
   ".bestpractices.json",
   ".coderabbit.yaml",
-  ".github/actions/scorecard/action.yml",
   ".github/dependabot.yml",
   ".github/fuzz.json",
   ".github/release-tests/test_asset_streaming.py",
