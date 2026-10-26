@@ -37,3 +37,17 @@ ESPHome's separately downloaded native firmware toolchains. Update the ESPHome
 input, generated lock, policy and CI matrix together. The YAML linter has a
 separate lock. Audit every package/version selected by the lock, including
 conditional marker branches; a host-filtered audit alone is incomplete.
+
+## Security update constraint (2026-10-24)
+
+Both ESPHome 2026.10.0b1 and stable 2026.10.0 declare exact requirements for
+Pillow 12.3.0 and filelock 4.0.10. The fixed releases, Pillow 13.0.0 and filelock
+4.2.1, cannot currently satisfy that upstream metadata. Keep those findings open;
+do not suppress the scanner or force an incompatible installation. Brotli,
+BrotliCFFI, certifi and setuptools can be refreshed independently while retaining
+the compiler and the existing Linux CPython 3.12 support contract.
+
+Recheck a subsequent upstream ESPHome release, resolve the complete universal
+lock, and run all eight firmware compile checks before changing the compiler.
+The compiler lock is a development tool; it is not bundled into the source-only
+application release or automatically installed on a device.
