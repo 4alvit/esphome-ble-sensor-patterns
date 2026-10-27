@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.4] - Development line
+
+### Changed
+
+- Refresh the hash-locked firmware build environment: Brotli 1.2.1, brotlicffi 1.2.1.0, certifi 2026.10.19 and setuptools 84.1.0.
+- Keep release dependency checks and version allocation evidence aligned with the current shared CI tooling; document retention of the dedicated release-version ledger.
+
+### Upgrade
+
+Sensor parser behavior and supported profiles are unchanged. Preserve device configuration and the previous accepted source package or firmware for rollback. This source release does not flash devices or certify physical sensor compatibility.
+
+### Security
+
+All eight pinned ESPHome compile checks, native parser tests, dependency scans and source-bound RC fuzzing remain required. The compiler's upstream filelock constraint remains tracked in issue #54; this release does not claim that limitation is resolved.
+
 ## [0.1.3] - 2026-10-17
 
 ### Changed
