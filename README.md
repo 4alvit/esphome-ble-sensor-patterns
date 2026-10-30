@@ -17,6 +17,15 @@ points for hardware validation, not battery protection or control firmware.
 [![ESPHome](https://img.shields.io/badge/ESPHome-2026.10.0b1-blue)](https://esphome.io)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
+## Install from your browser
+
+Build your chosen example in **ESPHome Device Builder** on Home Assistant or
+another server, then use **[ESPHome Web](https://web.esphome.io/)** to flash its
+factory image over USB. No Python or PlatformIO installation is required on the
+browser computer. Follow the [browser installation guide](docs/browser-installation.md).
+Each example still needs your own sensor address and private credentials;
+source beta/RC archives and synthetic CI builds are not ready-to-flash images.
+
 ## Examples
 
 - [JBD BMS](patterns/jbd-bms/): one or three battery monitors using the
@@ -32,7 +41,7 @@ JBD/Daly extensions are third-party components. Xiaomi components are supplied b
 ESPHome. Some examples contain C++ lambdas; the generic skeleton deliberately
 returns unavailable values until a device-specific parser is implemented.
 
-## Configure and build
+## Advanced: local configuration and builds
 
 The compile-only CI toolchain is ESPHome 2026.10.0b1, an upstream prerelease.
 It supplies a compatible PlatformIO release with fixed Starlette dependencies.
