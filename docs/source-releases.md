@@ -64,3 +64,18 @@ See [VERSIONING.md](VERSIONING.md) and the generated release runbook for the ful
 receipt contract. Stable publication remains a separate protected operation and
 is not part of this rollout. No release authorizes hardware installation,
 Bluetooth traffic, MQTT communication, flashing or deployment.
+
+## Release workflow retries
+
+Fresh release inputs are selected by the exact GitHub workflow run ID and run
+attempt. After a failed or partial run, choose **Re-run all jobs** so every
+required producer creates inputs for the same attempt. Retrying only failed jobs
+or an individual job intentionally fails when a complete current-attempt input
+set is missing.
+
+Artifacts from older attempts may remain available for diagnostics; they are not
+inputs to the new attempt and do not need to be deleted. Filtering artifact names
+alone does not prove package completeness or receipt identity. Complete package
+inventory and receipt identity checks remain separate release requirements.
+
+See the shared [package identity and retry contract](https://github.com/victron-venus/venus-os-ci-toolkit/blob/main/docs/VERSIONING.md#package-identity-across-reruns).
