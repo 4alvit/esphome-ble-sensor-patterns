@@ -53,6 +53,9 @@
         "member": "esphome-ble-sensor-patterns/SOURCE_VERSION",
         "value": "package"
       }
+    ],
+    "required_build_receipts": [
+      "release-inputs-package.json"
     ]
   },
   "fuzzing": {
