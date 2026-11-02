@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # Shared preparation for parser tests and released-source acceptance.
 set -euo pipefail
-if ! command -v clang++ >/dev/null 2>&1; then
+if command -v clang++ >/dev/null 2>&1; then
+  compiler=clang++
+elif command -v clang++-18 >/dev/null 2>&1; then
+  compiler=clang++-18
+else
   if [[ "$(uname -s)" != Linux ]] || ! command -v apt-get >/dev/null 2>&1; then
     echo 'Install Clang with AddressSanitizer and UndefinedBehaviorSanitizer support.' >&2
     exit 1
@@ -10,5 +14,9 @@ if ! command -v clang++ >/dev/null 2>&1; then
   if [[ "$EUID" != 0 ]]; then privilege=(sudo); fi
   "${privilege[@]}" apt-get update
   "${privilege[@]}" apt-get install -y --no-install-recommends clang
+  compiler=clang++
 fi
-clang++ --version
+"$compiler" --version
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+  printf 'compiler=%s\n' "$compiler" >> "$GITHUB_OUTPUT"
+fi

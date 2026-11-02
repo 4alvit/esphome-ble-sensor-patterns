@@ -20,6 +20,24 @@ def mapping(node):
 
 
 class InkbirdNativeTests(unittest.TestCase):
+    def test_existing_native_compiler_is_exported_without_installation(self):
+        for installed, expected in ((['clang++'], 'clang++'),
+                                    (['clang++-18'], 'clang++-18'),
+                                    (['clang++', 'clang++-18'], 'clang++')):
+            with self.subTest(installed=installed), tempfile.TemporaryDirectory() as temporary:
+                work = Path(temporary)
+                for name in installed:
+                    command = work / name
+                    command.write_text('#!/bin/sh\nexit 0\n')
+                    command.chmod(0o755)
+                forbidden = work / 'apt-get'
+                forbidden.write_text('#!/bin/sh\necho unexpected-install >&2\nexit 99\n')
+                forbidden.chmod(0o755)
+                output = work / 'output'
+                subprocess.run(['/bin/bash', str(ROOT / 'scripts/setup-native-compiler.sh')],
+                               env={'PATH': str(work), 'GITHUB_OUTPUT': str(output)}, check=True)
+                self.assertEqual(output.read_text(), f'compiler={expected}\n')
+
     def test_production_parser_and_actual_lambda_under_sanitizers(self):
         document = mapping(yaml.compose((ROOT / CONFIG).read_text()))
         tracker = mapping(document["esp32_ble_tracker"])
