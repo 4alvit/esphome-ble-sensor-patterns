@@ -7,7 +7,7 @@ archive is not firmware. `SOURCE_VERSION` versions this source collection;
 ESPHome and external-component revisions retain their independent pinned versions.
 Real `secrets.yaml`, local build directories and operator state are excluded.
 
-Normal pull requests retain all eight ESPHome 2026.10.0b1 compile checks, existing
+Normal pull requests retain all eight ESPHome 2026.10.1 compile checks, existing
 security and workflow checks, and add required native parser/source contracts.
 These use Linux CPython 3.12 for ESPHome and Clang 18 for host native tests. Firmware
 compilation can download locked dependencies and upstream native toolchains;

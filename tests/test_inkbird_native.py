@@ -3,6 +3,7 @@
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -79,6 +80,10 @@ class InkbirdNativeTests(unittest.TestCase):
         matrix = mapping(mapping(mapping(jobs["compile"])["strategy"])["matrix"])
         self.assertEqual([item.value for item in matrix["pattern"].value], policy["esphome_configs"])
         self.assertEqual(len(policy["esphome_configs"]), 8)
+        self.assertEqual([item.value for item in matrix["esphome"].value], [policy["esphome_version"]])
+        for path in (".github/requirements-esphome.in", ".github/requirements-esphome.txt"):
+            selected = re.findall(r"^esphome==([^\s;\\]+)", (ROOT / path).read_text(), re.MULTILINE)
+            self.assertEqual(selected, [policy["esphome_version"]], path)
         needs = mapping(jobs["summary"])["needs"]
         self.assertIn("native-parser", [item.value for item in needs.value])
 
