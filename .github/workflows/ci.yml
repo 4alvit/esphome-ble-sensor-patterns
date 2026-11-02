@@ -131,9 +131,11 @@ jobs:
           python-version: '3.12'
       - run: |
           python3 -m pip install --require-hashes --only-binary=:all: -r .github/requirements-workflow-contracts.txt
+      - name: Prepare native sanitizer compiler
+        run: bash scripts/setup-native-compiler.sh
       - name: Test exact production parser and YAML lambda with ASan and UBSan
         env:
-          CXX: clang++-18
+          CXX: clang++
         run: python3 -m unittest discover -s tests -p 'test_*.py' -v
   summary:
     name: Summary

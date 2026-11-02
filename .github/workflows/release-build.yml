@@ -46,9 +46,11 @@ jobs:
           VERSION: ${{ inputs.version }}
           CHANNEL: ${{ inputs.channel }}
         run: python3 scripts/patterns_source.py build "$VERSION" "$CHANNEL" release-dist
+      - name: Prepare native sanitizer compiler
+        run: bash scripts/setup-native-compiler.sh
       - name: Install and verify the exact source archive
         env:
-          CXX: clang++-18
+          CXX: clang++
         run: python3 scripts/patterns_source.py verify release-dist/esphome-ble-sensor-patterns-*.tar.gz
       - name: Verify all artifact checksums
         working-directory: release-dist
