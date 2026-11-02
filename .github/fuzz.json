@@ -3,7 +3,8 @@
   "language": "c",
   "setup": [
     [
-      "clang++-18",
+      "bash",
+      "scripts/setup-native-compiler.sh",
       "-std=c++17",
       "-O1",
       "-g",

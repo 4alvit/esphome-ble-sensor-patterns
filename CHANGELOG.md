@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Use the same detected Clang toolchain for native tests and RC fuzz builds, retaining all sanitizer and mutation checks when hosted runner images change.
 - Move the Linux validation compiler from ESPHome 2026.10.0b1 to stable 2026.10.1, synchronizing its policy, eight-job matrix and complete dependency lock.
 - Verify that the policy, CI and compiler lock agree on the selected version. The upstream BLE and Inkbird decoding sources are unchanged between these pins.
 - Refresh the hash-locked firmware build environment: Brotli 1.2.1, brotlicffi 1.2.1.0, certifi 2026.10.19 and setuptools 84.1.0.

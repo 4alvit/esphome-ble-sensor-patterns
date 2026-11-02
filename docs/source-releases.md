@@ -9,7 +9,9 @@ Real `secrets.yaml`, local build directories and operator state are excluded.
 
 Normal pull requests retain all eight ESPHome 2026.10.1 compile checks, existing
 security and workflow checks, and add required native parser/source contracts.
-These use Linux CPython 3.12 for ESPHome and Clang 18 for host native tests. Firmware
+These use Linux CPython 3.12 for ESPHome and the available Clang toolchain for host native tests.
+The compiler helper is shared with RC fuzz builds, which require libFuzzer as well as
+AddressSanitizer and UndefinedBehaviorSanitizer; compiler failures stop qualification. Firmware
 compilation can download locked dependencies and upstream native toolchains;
 fully offline repetition requires preparing those toolchains and caches first.
 See [dependency locks](DEPENDENCY_LOCKS.md). Compile success is not hardware
