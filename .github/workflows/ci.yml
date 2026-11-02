@@ -24,7 +24,7 @@ jobs:
           - patterns/jbd-bms/multi-bms.yaml
           - patterns/jbd-bms/single-bms.yaml
           - patterns/xiaomi-mi-flora/mi-flora.yaml
-        esphome: ['2026.10.0b1']
+        esphome: ['2026.10.1']
 
     steps:
       - name: Harden the runner (Audit all outbound calls)

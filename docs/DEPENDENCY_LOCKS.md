@@ -14,11 +14,11 @@ checks before merging. Hashes establish the selected artifact identity; they do
 not establish that a package is free of vulnerabilities. Keep dependency
 security scanning and update review enabled.
 
-The compile-only matrix uses upstream [ESPHome 2026.10.0b1](https://pypi.org/project/esphome/2026.10.0b1/), a prerelease.
-It declares PlatformIO 6.2.0, whose supported dependency range includes the
-Starlette security fixes. Stable ESPHome 2026.9.1 pins PlatformIO 6.1.19 and
-therefore cannot resolve those fixed Starlette versions without overriding
-upstream metadata. This repository does not override that metadata.
+The compile-only matrix uses upstream [ESPHome 2026.10.1](https://pypi.org/project/esphome/2026.10.1/), a stable release.
+It retains a compatible PlatformIO release with fixed Starlette dependencies.
+The policy, CI matrix and complete Linux compiler lock select the same version;
+the source-contract tests reject mismatches. Upstream dependency constraints are
+preserved without overrides.
 
 The selected compiler is for validation; it does not automatically publish or
 flash firmware. A clean installation and all eight firmware builds must pass
@@ -38,9 +38,9 @@ input, generated lock, policy and CI matrix together. The YAML linter has a
 separate lock. Audit every package/version selected by the lock, including
 conditional marker branches; a host-filtered audit alone is incomplete.
 
-## Security update constraint (2026-10-24)
+## Security update constraint (2026-11-02)
 
-Both ESPHome 2026.10.0b1 and stable 2026.10.0 declare exact requirements for
+ESPHome 2026.10.1 still declares exact requirements for
 Pillow 12.3.0 and filelock 4.0.10. The fixed releases, Pillow 13.0.0 and filelock
 4.2.1, cannot currently satisfy that upstream metadata. Keep those findings open;
 do not suppress the scanner or force an incompatible installation. Brotli,

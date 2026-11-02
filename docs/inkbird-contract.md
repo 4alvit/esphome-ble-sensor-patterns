@@ -12,16 +12,16 @@ and other revisions are outside this profile. Unknown frames publish nothing.
 
 ## Evidence and correction
 
-The pinned compile target is ESPHome 2026.10.0b1, commit
-`33cf262616960c9549252f79ec540d19996715d4`. Its
-[advertisement decoder](https://github.com/esphome/esphome/blob/33cf262616960c9549252f79ec540d19996715d4/esphome/components/ble_device_base/ble_device.cpp)
+The pinned compile target is ESPHome 2026.10.1, commit
+`4ea26ed65fefaf6ec9d1347285253801db096ee5`. Its
+[advertisement decoder](https://github.com/esphome/esphome/blob/4ea26ed65fefaf6ec9d1347285253801db096ee5/esphome/components/ble_device_base/ble_device.cpp)
 separates the first two manufacturer bytes into a little-endian UUID16 and passes
 the remaining bytes separately. The
-[manufacturer callback](https://github.com/esphome/esphome/blob/33cf262616960c9549252f79ec540d19996715d4/esphome/components/esp32_ble_tracker/automation.h)
+[manufacturer callback](https://github.com/esphome/esphome/blob/4ea26ed65fefaf6ec9d1347285253801db096ee5/esphome/components/esp32_ble_tracker/automation.h)
 therefore does not include those first two bytes in its vector.
 
 The same release's
-[Inkbird decoder](https://github.com/esphome/esphome/blob/33cf262616960c9549252f79ec540d19996715d4/esphome/components/inkbird_ibsth1_mini/inkbird_ibsth1_mini.cpp)
+[Inkbird decoder](https://github.com/esphome/esphome/blob/4ea26ed65fefaf6ec9d1347285253801db096ee5/esphome/components/inkbird_ibsth1_mini/inkbird_ibsth1_mini.cpp)
 checks a public address, no service data, one manufacturer entry, UUID16 and seven
 remaining bytes. It interprets UUID16 as signed temperature in hundredths,
 remaining bytes 0–1 as unsigned humidity in hundredths, byte 2 as the sensor

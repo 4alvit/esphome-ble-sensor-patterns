@@ -28,7 +28,7 @@
     "patterns/jbd-bms/single-bms.yaml",
     "patterns/xiaomi-mi-flora/mi-flora.yaml"
   ],
-  "esphome_version": "2026.10.0b1",
+  "esphome_version": "2026.10.1",
   "visibility": "public",
   "single_entry_ci": true,
   "version_file": "SOURCE_VERSION",
