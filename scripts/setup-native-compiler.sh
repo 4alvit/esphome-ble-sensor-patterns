@@ -20,3 +20,7 @@ fi
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   printf 'compiler=%s\n' "$compiler" >> "$GITHUB_OUTPUT"
 fi
+# Reuse the same selected compiler for RC fuzz builds when arguments are given.
+if (( $# )); then
+  exec "$compiler" "$@"
+fi

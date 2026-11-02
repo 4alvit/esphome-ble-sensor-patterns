@@ -39,6 +39,27 @@ class InkbirdNativeTests(unittest.TestCase):
                                env={'PATH': str(work), 'GITHUB_OUTPUT': str(output)}, check=True)
                 self.assertEqual(output.read_text(), f'compiler={expected}\n')
 
+    def test_fuzz_compiler_arguments_and_failures_are_preserved(self):
+        for exit_code in (0, 17):
+            with self.subTest(exit_code=exit_code), tempfile.TemporaryDirectory() as temporary:
+                work = Path(temporary)
+                compiler = work / "clang++"
+                compiler.write_text(
+                    '#!/bin/sh\n'
+                    'printf "%s\\n" "$@" >> "$ARGUMENT_LOG"\n'
+                    'if [ "$1" = "--version" ]; then exit 0; fi\n'
+                    f'exit {exit_code}\n'
+                )
+                compiler.chmod(0o755)
+                arguments = ["-std=c++17", "source with spaces.cpp", "-o", "output with spaces"]
+                log = work / "arguments"
+                result = subprocess.run(
+                    ["/bin/bash", str(ROOT / "scripts/setup-native-compiler.sh"), *arguments],
+                    env={"PATH": str(work), "ARGUMENT_LOG": str(log)}, check=False,
+                )
+                self.assertEqual(result.returncode, exit_code)
+                self.assertEqual(log.read_text().splitlines(), ["--version", *arguments])
+
     def test_production_parser_and_actual_lambda_under_sanitizers(self):
         document = mapping(yaml.compose((ROOT / CONFIG).read_text()))
         tracker = mapping(document["esp32_ble_tracker"])
