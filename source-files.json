@@ -118,6 +118,7 @@
   "scripts/release_versioned.py",
   "scripts/runner_preflight.py",
   "scripts/security_check.py",
+  "scripts/setup-native-compiler.sh",
   "scripts/stage_release_assets.py",
   "scripts/validate-source.py",
   "scripts/version_plan.py",
