@@ -3,6 +3,7 @@
   ".coderabbit.yaml",
   ".github/dependabot.yml",
   ".github/fuzz.json",
+  ".github/pyproject.toml",
   ".github/release-tests/test_asset_streaming.py",
   ".github/release-tests/test_change_scope.py",
   ".github/release-tests/test_cli_version_paths.py",

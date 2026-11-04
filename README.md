@@ -14,7 +14,7 @@ Xiaomi temperature and plant sensors, and an Inkbird example. These are starting
 points for hardware validation, not battery protection or control firmware.
 
 [![CI](https://github.com/4alvit/esphome-ble-sensor-patterns/actions/workflows/quality-gate.yml/badge.svg)](https://github.com/4alvit/esphome-ble-sensor-patterns/actions/workflows/quality-gate.yml)
-[![ESPHome](https://img.shields.io/badge/ESPHome-2026.10.1-blue)](https://esphome.io)
+[![ESPHome](https://img.shields.io/badge/ESPHome-2026.11.0b1-blue)](https://esphome.io)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
 ## Install from your browser
@@ -43,8 +43,9 @@ returns unavailable values until a device-specific parser is implemented.
 
 ## Advanced: local configuration and builds
 
-The compile-only CI toolchain is ESPHome 2026.10.1, an upstream stable release.
-It supplies a compatible PlatformIO release with fixed Starlette dependencies.
+The compile-only CI toolchain is the upstream ESPHome 2026.11.0b1 prerelease.
+It permits the fixed Pillow 13.0.0 and filelock 4.2.6 dependencies without
+overrides. This CI selection is not a production-firmware recommendation.
 The supported compiler host is Linux with CPython 3.12; use a Linux environment
 on macOS or Windows.
 Validate compatibility on your intended hardware before using its output.
@@ -86,7 +87,7 @@ is configured. BLE advertisements are not a trusted authorization channel.
 
 ## Validation and releases
 
-The required CI matrix compiles all eight complete examples on ESPHome 2026.10.1:
+The required CI matrix compiles all eight complete examples on ESPHome 2026.11.0b1:
 JBD and Daly single/multi BMS, Inkbird, Xiaomi LYWSD03MMC, Mi Flora and the generic
 skeleton. Syntax, management-default regression tests, Ruff/Bandit and CodeQL
 checks run as well. Compilation cannot prove packet interpretation, radio range,

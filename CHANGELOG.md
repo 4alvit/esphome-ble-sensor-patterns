@@ -5,8 +5,9 @@
 ### Changed
 
 - Use the same detected Clang toolchain for native tests and RC fuzz builds, retaining all sanitizer and mutation checks when hosted runner images change.
-- Move the Linux validation compiler from ESPHome 2026.10.0b1 to stable 2026.10.1, synchronizing its policy, eight-job matrix and complete dependency lock.
-- Verify that the policy, CI and compiler lock agree on the selected version. The upstream BLE and Inkbird decoding sources are unchanged between these pins.
+- Move the Linux validation compiler to the upstream ESPHome 2026.11.0b1 prerelease, synchronizing its policy, eight-job matrix and complete dependency lock.
+- Scope universal compiler-lock regeneration to Linux with dedicated metadata in `.github/pyproject.toml`; preserve x86_64 and aarch64 support without dependency overrides.
+- Verify that the policy, CI and compiler lock agree on the selected version. The documented upstream manufacturer-data and Inkbird field-decoding contracts are preserved.
 - Refresh the hash-locked firmware build environment: Brotli 1.2.1, brotlicffi 1.2.1.0, certifi 2026.10.19 and setuptools 84.1.0.
 - Keep release dependency checks and version allocation evidence aligned with the current shared CI tooling; document retention of the dedicated release-version ledger.
 
@@ -16,7 +17,7 @@ Sensor parser behavior and supported profiles are unchanged. Preserve device con
 
 ### Security
 
-All eight pinned ESPHome compile checks, native parser tests, dependency scans and source-bound RC fuzzing remain required. The compiler's upstream filelock constraint remains tracked in issue #54; this release does not claim that limitation is resolved.
+The compiler lock now selects upstream-compatible Pillow 13.0.0 and filelock 4.2.6, addressing the dependency constraints tracked in issue #54. All eight pinned ESPHome compile checks, native parser tests, dependency scans and source-bound RC fuzzing remain required. The compiler is a CI-only prerelease; this change does not update or flash existing devices.
 
 ## [0.1.3] - 2026-10-17
 
