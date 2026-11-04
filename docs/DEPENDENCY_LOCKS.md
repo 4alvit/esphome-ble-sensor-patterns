@@ -14,40 +14,49 @@ checks before merging. Hashes establish the selected artifact identity; they do
 not establish that a package is free of vulnerabilities. Keep dependency
 security scanning and update review enabled.
 
-The compile-only matrix uses upstream [ESPHome 2026.10.1](https://pypi.org/project/esphome/2026.10.1/), a stable release.
-It retains a compatible PlatformIO release with fixed Starlette dependencies.
-The policy, CI matrix and complete Linux compiler lock select the same version;
-the source-contract tests reject mismatches. Upstream dependency constraints are
-preserved without overrides.
+## Supported compiler environment
 
-The selected compiler is for validation; it does not automatically publish or
-flash firmware. A clean installation and all eight firmware builds must pass
-before changing this pin. Prefer the next compatible stable release after the
-same checks. The compiler input restricts resolution to Linux. The installer rejects other
-hosts, non-CPython interpreters and Python versions other than 3.12 before pip
-runs. Direct native installation on macOS and Windows is not supported by this
-lock; use a Linux environment. In particular, the upstream Intel-macOS marker
-pins cryptography 48.0.1, which has published advisories and is excluded by the
-explicit Linux-only support policy, not overridden or ignored by the scanner.
+The compile-only matrix uses upstream
+[ESPHome 2026.11.0b1](https://pypi.org/project/esphome/2026.11.0b1/), a prerelease.
+Its constraints permit Pillow 13.0.0 and filelock 4.2.6, resolving the older
+compiler's incompatible pins without overrides. The policy, CI matrix and
+complete Linux compiler lock select the same ESPHome version; source-contract
+tests reject mismatches. This CI choice does not recommend prerelease firmware
+for production devices. Prefer a subsequent compatible stable release after the
+same checks.
 
-Some dependencies, including paho-mqtt 1.6.1, have only source distributions;
-they build with the preinstalled locked tools. CI compiles all eight declared
-configurations using isolated dummy credentials. Python locks do not pin
-ESPHome's separately downloaded native firmware toolchains. Update the ESPHome
-input, generated lock, policy and CI matrix together. The YAML linter has a
-separate lock. Audit every package/version selected by the lock, including
-conditional marker branches; a host-filtered audit alone is incomplete.
+The installer rejects non-Linux hosts, non-CPython interpreters and Python
+versions other than 3.12 before pip runs. Direct native installation on macOS and
+Windows is unsupported; use a Linux environment. Upstream 2026.11.0b1 has an
+unsatisfiable Intel-macOS branch: its cryptography 50.0.2 pin conflicts with
+`aioesphomeapi`'s `<49` requirement on that platform. Do not override either
+constraint or broaden the supported host policy.
 
-## Security update constraint (2026-11-02)
+Regenerate the compiler lock from the repository root:
 
-ESPHome 2026.10.1 still declares exact requirements for
-Pillow 12.3.0 and filelock 4.0.10. The fixed releases, Pillow 13.0.0 and filelock
-4.2.1, cannot currently satisfy that upstream metadata. Keep those findings open;
-do not suppress the scanner or force an incompatible installation. Brotli,
-BrotliCFFI, certifi and setuptools can be refreshed independently while retaining
-the compiler and the existing Linux CPython 3.12 support contract.
+```sh
+uv --directory .github pip compile requirements-esphome.in --generate-hashes --universal --python-version 3.12 -o requirements-esphome.txt
+```
 
-Recheck a subsequent upstream ESPHome release, resolve the complete universal
-lock, and run all eight firmware compile checks before changing the compiler.
-The compiler lock is a development tool; it is not bundled into the source-only
-application release or automatically installed on a device.
+The dedicated `.github/pyproject.toml` restricts this universal resolution to
+Linux. It does not restrict Linux architecture: x86_64, aarch64 and conditional
+Python dependency branches remain in scope. The input retains Linux markers.
+`--directory .github` is required so uv reads that metadata; a root-level
+invocation without it attempts unsupported operating-system branches.
+The file configures lock regeneration only, not runtime installation or other
+project tooling.
+
+## Validation and update boundaries
+
+A clean hash-checked installation, `pip check` and all eight firmware builds
+must pass before changing the compiler pin. Some dependencies have only source
+distributions; they build with the preinstalled locked tools. CI compiles all
+eight configurations using isolated dummy credentials. Python locks do not pin
+ESPHome's separately downloaded native firmware toolchains. Update the input,
+generated lock, environment metadata, policy and CI matrix together. The YAML
+linter has a separate lock. Audit every package/version selected by the lock,
+including conditional marker branches; a host-filtered audit alone is incomplete.
+
+The compiler is a development tool, not bundled into the source-only application
+release or automatically installed on a device. Validation does not publish or
+flash firmware and does not establish physical sensor compatibility.
