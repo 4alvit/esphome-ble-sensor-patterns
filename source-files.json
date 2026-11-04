@@ -13,6 +13,7 @@
   ".github/release-tests/test_release_import_modes.py",
   ".github/release-tests/test_release_notes.py",
   ".github/release-tests/test_release_read_safety.py",
+  ".github/release-tests/test_release_response_framing.py",
   ".github/release-tests/test_release_state.py",
   ".github/release-tests/test_release_validation.py",
   ".github/release-tests/test_runner_preflight.py",
