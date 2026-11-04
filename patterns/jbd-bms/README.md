@@ -30,7 +30,7 @@ JBD (Jiabaida) BMS with BLE interface. Uses `syssi/esphome-jbd-bms` external com
 ## External Component
 ```yaml
 external_components:
-  - source: github://syssi/esphome-jbd-bms@fdd33434accf7b1abd10bb6cc8030fbe577bfcb3
+  - source: github://syssi/esphome-jbd-bms@70831773385cfa803a543d87f4ca9e65a2f8415a
     refresh: 1d
     components: [jbd_bms_ble]
 ```
@@ -51,3 +51,7 @@ esp32:
 ## References
 - Component: https://github.com/syssi/esphome-jbd-bms
 - Protocol: JBD BLE protocol (0xFF00 service)
+
+The component is pinned at a [compatible upstream revision](https://github.com/syssi/esphome-jbd-bms/commit/70831773385cfa803a543d87f4ca9e65a2f8415a) with the current formatting API and sensitive configuration-password handling for the repository's ESPHome 2026.11.0b1 compile-only CI. Sensor definitions and control settings are unchanged. CI compilation does not replace testing on your hardware.
+
+Configuration-password redaction does not suppress runtime protocol logs. Upstream verbose authentication-frame logs can expose credential material; do not enable `VERBOSE` or `VERY_VERBOSE` BMS logging with real credentials. The examples retain their existing log levels.
