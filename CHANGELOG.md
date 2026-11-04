@@ -6,6 +6,7 @@
 
 - Use the same detected Clang toolchain for native tests and RC fuzz builds, retaining all sanitizer and mutation checks when hosted runner images change.
 - Move the Linux validation compiler to the upstream ESPHome 2026.11.0b1 prerelease, synchronizing its policy, eight-job matrix and complete dependency lock.
+- Update the JBD and Daly external-component pins to compatible upstream revisions with `format_hex_pretty_to` and sensitive configuration-password handling; keep sensor definitions and control settings unchanged.
 - Scope universal compiler-lock regeneration to Linux with dedicated metadata in `.github/pyproject.toml`; preserve x86_64 and aarch64 support without dependency overrides.
 - Verify that the policy, CI and compiler lock agree on the selected version. The documented upstream manufacturer-data and Inkbird field-decoding contracts are preserved.
 - Refresh the hash-locked firmware build environment: Brotli 1.2.1, brotlicffi 1.2.1.0, certifi 2026.10.19 and setuptools 84.1.0.
@@ -16,6 +17,8 @@
 Sensor parser behavior and supported profiles are unchanged. Preserve device configuration and the previous accepted source package or firmware for rollback. This source release does not flash devices or certify physical sensor compatibility.
 
 ### Security
+
+Limit the single-Daly example's BMS log tag to `WARN`, matching the multi-Daly example, because upstream logs received passwords at `INFO`. Configuration-password redaction and runtime log filtering are separate controls.
 
 The compiler lock now selects upstream-compatible Pillow 13.0.0 and filelock 4.2.6, addressing the dependency constraints tracked in issue #54. All eight pinned ESPHome compile checks, native parser tests, dependency scans and source-bound RC fuzzing remain required. The compiler is a CI-only prerelease; this change does not update or flash existing devices.
 

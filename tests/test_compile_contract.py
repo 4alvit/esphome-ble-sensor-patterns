@@ -87,6 +87,23 @@ class SecureFirmwareDefaultsTests(unittest.TestCase):
                 self.assertEqual(example["api_encryption_key"], "")
         self.assertEqual(len(checked), 8)
 
+    def test_daly_logs_do_not_publish_password_responses(self):
+        """Exclude upstream INFO password responses from each example's log output."""
+        root = Path(__file__).parents[1]
+        levels = {
+            "NONE": 0, "ERROR": 1, "WARN": 2, "INFO": 3,
+            "DEBUG": 4, "VERBOSE": 5, "VERY_VERBOSE": 6,
+        }
+        for relative in ("single-bms.yaml", "multi-bms.yaml"):
+            with self.subTest(config=relative):
+                document = yaml.compose((root / "patterns/daly-bms" / relative).read_text())
+                fields = {key.value: value for key, value in document.value}
+                logger = {key.value: value for key, value in fields["logger"].value}
+                global_level = logger["level"].value if "level" in logger else "DEBUG"
+                tags = {key.value: value.value for key, value in logger["logs"].value} if "logs" in logger else {}
+                effective = tags.get("daly_bms_ble", global_level)
+                self.assertLessEqual(levels[effective], levels["WARN"])
+
     def test_xiaomi_uses_supported_builtin_parsers(self):
         root = Path(__file__).parents[1]
         for relative, platform in (

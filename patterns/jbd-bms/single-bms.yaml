@@ -46,7 +46,7 @@ api:
 # The optional HTTP management server is disabled by default.
 
 external_components:
-  - source: github://syssi/esphome-jbd-bms@fdd33434accf7b1abd10bb6cc8030fbe577bfcb3
+  - source: github://syssi/esphome-jbd-bms@70831773385cfa803a543d87f4ca9e65a2f8415a
     refresh: 1d
     components: [jbd_bms_ble]
 

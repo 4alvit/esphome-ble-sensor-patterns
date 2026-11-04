@@ -44,7 +44,7 @@ api:
 # The optional HTTP management server is disabled by default.
 
 external_components:
-  - source: github://syssi/esphome-daly-bms@f97d33c987fc38cf9bb5576141dade997a0dadc9
+  - source: github://syssi/esphome-daly-bms@17ae67d1d917968e5a99a0c419b21b93f7ed9450
     refresh: 1d
     components: [daly_bms_ble]
 
