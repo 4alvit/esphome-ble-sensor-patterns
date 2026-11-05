@@ -1,6 +1,45 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>victron-venus/venus-os-ci-toolkit:renovate-ci"
-  ]
+    "local>victron-venus/venus-os-ci-toolkit:renovate-fleet"
+  ],
+  "enabledManagers": [
+    "github-actions",
+    "custom.regex",
+    "custom.jsonata",
+    "pip_requirements",
+    "pip-compile"
+  ],
+  "pip_requirements": {
+    "managerFilePatterns": [
+      "/(^|/)requirements[^/]*\\.(txt|pip)$/"
+    ],
+    "ignorePaths": [
+      "**/vendor/**",
+      "**/node_modules/**",
+      "**/fixtures/**",
+      ".github/requirements-build.txt",
+      ".github/requirements-lint.txt",
+      ".github/requirements-security.txt",
+      ".github/requirements-esphome.txt",
+      ".github/requirements-build.in",
+      ".github/requirements-esphome.in",
+      ".github/requirements-lint.in",
+      ".github/requirements-security.in",
+      ".github/requirements-wheels-only.in"
+    ]
+  },
+  "ignorePaths": [
+    "**/vendor/**",
+    "**/node_modules/**",
+    "**/fixtures/**"
+  ],
+  "pip-compile": {
+    "managerFilePatterns": [
+      "/^\\.github/requirements\\-build\\.txt$/",
+      "/^\\.github/requirements\\-lint\\.txt$/",
+      "/^\\.github/requirements\\-security\\.txt$/",
+      "/^\\.github/requirements\\-esphome\\.txt$/"
+    ]
+  }
 }

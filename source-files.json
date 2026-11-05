@@ -1,7 +1,6 @@
 [
   ".bestpractices.json",
   ".coderabbit.yaml",
-  ".github/dependabot.yml",
   ".github/fuzz.json",
   ".github/pyproject.toml",
   ".github/release-tests/test_asset_streaming.py",
@@ -31,6 +30,7 @@
   ".github/requirements-lint.txt",
   ".github/requirements-security.in",
   ".github/requirements-security.txt",
+  ".github/requirements-wheels-only.in",
   ".github/requirements-workflow-contracts.txt",
   ".github/workflow-tests/test_action_pins.py",
   ".github/workflow-tests/test_workflow_yaml_contracts.py",
@@ -103,6 +103,7 @@
   "patterns/xiaomi-mi-flora/README.md",
   "patterns/xiaomi-mi-flora/mi-flora.yaml",
   "patterns/xiaomi-mi-flora/secrets.example.yaml",
+  "renovate.json",
   "scripts/__init__.py",
   "scripts/change_scope.py",
   "scripts/ci.sh",
