@@ -63,7 +63,14 @@ The compiler is a development tool, not bundled into the source-only application
 release or automatically installed on a device. Validation does not publish or
 flash firmware and does not establish physical sensor compatibility.
 
-Renovate keeps the qualified ESPHome compiler at 2026.11.0b1 while updating
-other editable inputs and their generated locks. A compiler upgrade must update
+Renovate updates the independent build-tool, lint and security locks. The
+qualified ESPHome compiler stays at 2026.11.0b1 and follows the reviewed source
+update procedure below. A compiler upgrade must update
 the requirement input, lock, `.release-policy.json` and workflow matrix together
 and pass the existing eight-build qualification described above.
+
+## Source distribution qualification boundary
+
+The exact compiler source and lock are a reviewed source update unit. `esptool==5.6.0` has no usable Linux wheel, so the no-build dependency updater cannot regenerate this closure. Use the existing `uv --directory .github pip compile requirements-esphome.in --generate-hashes --universal --python-version=3.12 --output-file=requirements-esphome.txt` command in the qualified development environment, and retain the coordinated policy/matrix and eight-build checks above. Build-tool, lint and security locks remain automated.
+Security fixes for this held source/output unit use the same manual procedure.
+Security updates for other supported units remain automated.
