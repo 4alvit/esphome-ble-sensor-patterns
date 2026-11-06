@@ -32,14 +32,15 @@
   "ignorePaths": [
     "**/vendor/**",
     "**/node_modules/**",
-    "**/fixtures/**"
+    "**/fixtures/**",
+    ".github/requirements-esphome.in",
+    ".github/requirements-esphome.txt"
   ],
   "pip-compile": {
     "managerFilePatterns": [
       "/^\\.github/requirements\\-build\\.txt$/",
       "/^\\.github/requirements\\-lint\\.txt$/",
-      "/^\\.github/requirements\\-security\\.txt$/",
-      "/^\\.github/requirements\\-esphome\\.txt$/"
+      "/^\\.github/requirements\\-security\\.txt$/"
     ]
   },
   "packageRules": [
