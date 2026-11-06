@@ -41,5 +41,20 @@
       "/^\\.github/requirements\\-security\\.txt$/",
       "/^\\.github/requirements\\-esphome\\.txt$/"
     ]
-  }
+  },
+  "packageRules": [
+    {
+      "description": "Upgrade the qualified ESPHome compiler together with its release policy and workflow matrix.",
+      "matchManagers": [
+        "pip-compile"
+      ],
+      "matchFileNames": [
+        ".github/requirements-esphome.in"
+      ],
+      "matchPackageNames": [
+        "esphome"
+      ],
+      "allowedVersions": "==2026.11.0b1"
+    }
+  ]
 }
