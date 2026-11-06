@@ -72,5 +72,12 @@ and pass the existing eight-build qualification described above.
 ## Source distribution qualification boundary
 
 The exact compiler source and lock are a reviewed source update unit. `esptool==5.6.0` has no usable Linux wheel, so the no-build dependency updater cannot regenerate this closure. Use the existing `uv --directory .github pip compile requirements-esphome.in --generate-hashes --universal --python-version=3.12 --output-file=requirements-esphome.txt` command in the qualified development environment, and retain the coordinated policy/matrix and eight-build checks above. Build-tool, lint and security locks remain automated.
-Security fixes for this held source/output unit use the same manual procedure.
+For a transitive security fix, append `--upgrade-package <name>` to the compile
+command above, replacing `<name>` with the affected package. Without that flag,
+uv can retain the existing lock pin. Verify that the regenerated lock selects a
+version in the advisory's fixed range on every affected marker branch before
+accepting the change. If the compiler constraints exclude the fix, coordinate
+a compatible compiler/input, policy and matrix update; do not override them.
+Retain the hash-checked installation, `pip check` and all eight firmware builds.
+Security fixes for this held source/output unit use this manual procedure.
 Security updates for other supported units remain automated.
