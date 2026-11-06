@@ -33,6 +33,8 @@
   ".github/requirements-wheels-only.in",
   ".github/requirements-workflow-contracts.txt",
   ".github/workflow-tests/test_action_pins.py",
+  ".github/workflow-tests/test_documentation_inputs.py",
+  ".github/workflow-tests/test_release_scope.py",
   ".github/workflow-tests/test_workflow_yaml_contracts.py",
   ".github/workflows/auto-approve.yml",
   ".github/workflows/auto-merge.yml",
