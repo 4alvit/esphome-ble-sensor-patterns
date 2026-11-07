@@ -8,9 +8,11 @@ unlocked build environment. Application dependencies remain installed from their
 full locks; `--no-deps` is used only for the subsequent local project install.
 
 The first two comment lines in each generated lock record its `uv pip compile`
-command. Run that command from the repository root with uv 0.12.7 to regenerate
-the lock, review version and hash changes, then repeat the corresponding CI
-checks before merging. Hashes establish the selected artifact identity; they do
+command. Most commands run from the repository root with uv 0.12.7. The
+ESPHome compiler command runs inside `.github` so it reads the Linux resolver
+metadata; use the explicit `--directory .github` command below when starting
+from the repository root. Review version and hash changes, then repeat the
+corresponding CI checks before merging. Hashes establish the selected artifact identity; they do
 not establish that a package is free of vulnerabilities. Keep dependency
 security scanning and update review enabled.
 
@@ -35,7 +37,7 @@ constraint or broaden the supported host policy.
 Regenerate the compiler lock from the repository root:
 
 ```sh
-uv --directory .github pip compile requirements-esphome.in --generate-hashes --universal --python-version 3.12 -o requirements-esphome.txt
+uv --directory .github pip compile requirements-esphome.in --generate-hashes --universal --python-version=3.12 --output-file=requirements-esphome.txt
 ```
 
 The dedicated `.github/pyproject.toml` restricts this universal resolution to
@@ -60,3 +62,22 @@ including conditional marker branches; a host-filtered audit alone is incomplete
 The compiler is a development tool, not bundled into the source-only application
 release or automatically installed on a device. Validation does not publish or
 flash firmware and does not establish physical sensor compatibility.
+
+Renovate updates the independent build-tool, lint and security locks. The
+qualified ESPHome compiler stays at 2026.11.0b1 and follows the reviewed source
+update procedure below. A compiler upgrade must update
+the requirement input, lock, `.release-policy.json` and workflow matrix together
+and pass the existing eight-build qualification described above.
+
+## Source distribution qualification boundary
+
+The exact compiler source and lock are a reviewed source update unit. `esptool==5.6.0` has no usable Linux wheel, so the no-build dependency updater cannot regenerate this closure. Use the existing `uv --directory .github pip compile requirements-esphome.in --generate-hashes --universal --python-version=3.12 --output-file=requirements-esphome.txt` command in the qualified development environment, and retain the coordinated policy/matrix and eight-build checks above. Build-tool, lint and security locks remain automated.
+For a transitive security fix, append `--upgrade-package <name>` to the compile
+command above, replacing `<name>` with the affected package. Without that flag,
+uv can retain the existing lock pin. Verify that the regenerated lock selects a
+version in the advisory's fixed range on every affected marker branch before
+accepting the change. If the compiler constraints exclude the fix, coordinate
+a compatible compiler/input, policy and matrix update; do not override them.
+Retain the hash-checked installation, `pip check` and all eight firmware builds.
+Security fixes for this held source/output unit use this manual procedure.
+Security updates for other supported units remain automated.
