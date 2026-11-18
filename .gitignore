@@ -38,3 +38,4 @@ release-assets/
 .release-plan.json
 .release-inputs.json
 fuzz-inkbird
+A*S.md
