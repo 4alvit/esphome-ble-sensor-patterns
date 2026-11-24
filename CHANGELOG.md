@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.1.5] - Unreleased
+
+### Changed
+
+- keep local instruction files out of git.
+- add a navigation index for docs/.
+- isolate every auto-merge base edit (#94).
+- preserve merge identity and withdrawn auto-merge requests (#93).
+- use the shared safe scope regeneration guide (#87).
+- skip heavy qualification for ordinary documentation (#86).
+- Guard dependency updates from source builds (#85).
+- Complete dependency update migration to Renovate (#84).
+- recheck automatic publication source (#82).
+- reconcile lost creation responses (#81).
+
+### Upgrade
+
+Sensor parser behavior and supported profiles are unchanged. Preserve device configuration and the previous accepted source package or firmware for rollback. This source release does not flash devices or certify physical sensor compatibility.
+
+### Security
+
+Limit the single-Daly example's BMS log tag to `WARN`, matching the multi-Daly example, because upstream logs received passwords at `INFO`. Configuration-password redaction and runtime log filtering are separate controls.
+
+The compiler lock now selects upstream-compatible Pillow 13.0.0 and filelock 4.2.6, addressing the dependency constraints tracked in issue #54. All eight pinned ESPHome compile checks, native parser tests, dependency scans and source-bound RC fuzzing remain required. The compiler is a CI-only prerelease; this change does not update or flash existing devices.
+
 ## [0.1.4] - Development line
 
 ### Changed
